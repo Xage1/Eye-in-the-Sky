@@ -1,5 +1,6 @@
 from pymongo import MongoClient
+from app.config.settings import settings
 
-def get_database():
-    client = MongoClient("mongodb://localhost:27017/")
-    return client['Eye-in-the-Sky']
+
+client = MongoClient(settings.MONGO_URI)
+db = client['Eye-in-the-Sky']
