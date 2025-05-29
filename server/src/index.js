@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
+const quizRoutes = require('./routes/quizRoutes');
+
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +21,6 @@ app.get('/', (req, res) => {
 });
 
 // Import routes
-const quizRoutes = require('./routes/quizRoutes');
 app.use('/api/quizzes', quizRoutes);
 
 // Start Server
