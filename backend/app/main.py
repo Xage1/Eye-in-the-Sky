@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.routers import constellations, celestial, quiz
+from app.routers import location
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()

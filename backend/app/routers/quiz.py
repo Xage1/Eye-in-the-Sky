@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.quiz import QuizSubmit
+from sqlalchemy.future import select
 from app.database import SessionLocal
 from app.models.quiz import QuizQuestion
+from app.schemas.quiz import QuizSubmit, QuizAnswer
 import json
 
 router = APIRouter(prefix="/quiz", tags=["Quiz"])
@@ -14,19 +15,42 @@ def get_db():
     finally:
         db.close()
 
+# ✅ GET /quiz/
 @router.get("/")
-async def get_questions(difficulty: str = "simple", db: AsyncSession = Depends(get_db)):
-    result = await db.execute(f"SELECT * FROM quiz_questions WHERE difficulty = '{difficulty}' LIMIT 5")
-    rows = result.fetchall()
+async def get_questions(
+    difficulty: str = "simple",
+    topic: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(QuizQuestion).where(QuizQuestion.difficulty == difficulty)
+    if topic:
+        stmt = stmt.where(QuizQuestion.topic == topic)
+    stmt = stmt.order_by(func.random()).limit(5)
+
+    result = await db.execute(stmt)
+    questions = result.scalars().all()
+
     return [
         {
-            "id": row.id,
-            "question_text": row.question_text,
-            "options": json.loads(row.options)
-        } for row in rows
+            "id": q.id,
+            "question_text": q.question_text,
+            "options": json.loads(q.options),
+        }
+        for q in questions
     ]
 
+# ✅ POST /quiz/submit
 @router.post("/submit")
-async def submit_quiz(submit: QuizSubmit):
-    score = sum(1 for q in submit.answers if q.answer == q.correct)
+async def submit_quiz(submit: QuizSubmit, db: AsyncSession = Depends(get_db)):
+    ids = [q.id for q in submit.answers]
+    stmt = select(QuizQuestion).where(QuizQuestion.id.in_(ids))
+    result = await db.execute(stmt)
+    questions_dict = {q.id: q.correct_answer for q in result.scalars().all()}
+
+    score = 0
+    for a in submit.answers:
+        correct = questions_dict.get(a.id)
+        if correct and a.answer.strip().lower() == correct.strip().lower():
+            score += 1
+
     return {"score": score, "total": len(submit.answers)}
