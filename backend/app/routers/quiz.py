@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from app.database import SessionLocal
 from app.models.quiz import QuizQuestion
 from app.models.quiz_answer import QuizAnswer
-from models.quiz_submission import QuizSubmission
+from app.models.quiz_submission import QuizSubmission
 from app.schemas.quiz_submission import QuizSubmissionOut, QuizSubmissionCreate
 from app.schemas.quiz import QuizSubmit, QuizAnswer
 from app.utils.deps import get_current_user
@@ -84,5 +84,3 @@ async def get_quiz_history(
         select(QuizSubmission).where(QuizSubmission.user_id == current_user.id)
     )
     return result.scalars().all()
-
-
