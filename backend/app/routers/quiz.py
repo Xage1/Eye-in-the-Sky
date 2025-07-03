@@ -7,6 +7,7 @@ from app.models.quiz_answer import QuizAnswer
 from app.models.quiz_submission import QuizSubmission
 from app.schemas.quiz_submission import QuizSubmissionOut, QuizSubmissionCreate
 from app.schemas.quiz import QuizSubmit, QuizAnswer
+from app.models.user import User
 from app.utils.deps import get_current_user
 import json
 
