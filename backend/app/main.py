@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routers import constellations, celestial, quiz
 from app.routers import location
+from app.routers import auth
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -16,3 +17,4 @@ app.add_middleware(
 app.include_router(constellations.router)
 app.include_router(celestial.router)
 app.include_router(quiz.router)
+app.include_router(auth.router)
