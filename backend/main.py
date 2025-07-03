@@ -3,7 +3,7 @@ from app.routers import constellations, celestial, quiz
 from app.routers import location
 from app.routers import auth
 from app.routers import skyinfo
-from app.routers import quiz, watchlist, user_settings
+from app.routers import quiz, watchlist, user_settings, starmap, lessons, events, satellites
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
