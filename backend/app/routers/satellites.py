@@ -1,13 +1,18 @@
-from fastapi import APIRouter
-from app.utils.tle import fetch_and_parse_tle
-from app.utils.notify import get_iss_position
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from app.services.satellite_service import get_visible_satellites
 
-router = APIRouter(prefix="/satellites", tags=["Satellites"])
+router = APIRouter(prefix="/sky", tags=["Sky Analysis"])
 
-@router.get("/tle")
-async def get_satellite_tle():
-    return await fetch_and_parse_tle()
+class SatelliteRequest(BaseModel):
+    latitude: float
+    longitude: float
+    altitude: float = 0  # Optional, default is sea level
 
-@router.get("/iss")
-async def get_iss():
-    return await get_iss_position()
+@router.post("/satellites/visible")
+async def satellites_visible(req: SatelliteRequest):
+    try:
+        data = await get_visible_satellites(req.latitude, req.longitude, req.altitude)
+        return {"visible_satellites": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
