@@ -1,18 +1,28 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from app.services.satellite_service import get_visible_satellites
+from fastapi import APIRouter, Query
+from typing import Optional
+from datetime import datetime
+from app.utils.satellite_tools import get_visible_satellites
 
-router = APIRouter(prefix="/sky", tags=["Sky Analysis"])
+router = APIRouter()
 
-class SatelliteRequest(BaseModel):
-    latitude: float
-    longitude: float
-    altitude: float = 0  # Optional, default is sea level
+@router.get("sky/satellites/visible")
+def get_visible(lat: float = Query(...), lon: float = Query(...), alt: float = 0, when: Optional[str] = None):
+    """
+    Get a list of visible satellites from the observer's location at a given UTC time.
+    """
 
-@router.post("/satellites/visible")
-async def satellites_visible(req: SatelliteRequest):
-    try:
-        data = await get_visible_satellites(req.latitude, req.longitude, req.altitude)
-        return {"visible_satellites": data}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    try: 
+        dt = datetime.fromisoformat(when) if when else None
+    except ValueError:
+        return {"error": "Invalid time format. Use ISO 8601 format (YYYY-MM-DDTHH:MM:SS)."}
+    
+    sats = get_visible_satellites(lat, lon, alt, when=dt)
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "location": {
+            "lat": lat,
+            "lon": lon,
+            "alt": alt
+        },
+        "visible_satellites": sats
+    }
