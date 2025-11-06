@@ -1,26 +1,29 @@
 import json
 from pathlib import Path
 from datetime import datetime
-
 from astropy.coordinates import SkyCoord, AltAz, EarthLocation
 from astropy.time import Time
 import astropy.units as u
 
-
+# === Load star and constellation data ===
 def load_data():
-    with open(Path("app/data/stars.json"), "r", encoding="utf-8") as f:
-        stars = json.load(f)
+    base_dir = Path(__file__).resolve().parent.parent
+    data_dir = base_dir / "data"
+    stars_path = data_dir / "stars.json"
+    constellations_path = data_dir / "constellations.json"
 
-    with open(Path("app/data/constellations.json"), "r", encoding="utf-8") as f:
+    with stars_path.open("r", encoding="utf-8") as f:
+        stars = json.load(f)
+    with constellations_path.open("r", encoding="utf-8") as f:
         constellations = json.load(f)
 
     return stars, constellations
 
 
-def identify_visible_constellations(lat, lon, azimuth, radius=10, when=None):
+# === Visible Constellations ===
+def identify_visible_constellations(lat, lon, azimuth, when=None, radius=10):
     stars, constellations = load_data()
     when = when or datetime.utcnow()
-
     location = EarthLocation(lat=lat * u.deg, lon=lon * u.deg)
     time = Time(when)
     altaz_frame = AltAz(obstime=time, location=location)
@@ -28,20 +31,30 @@ def identify_visible_constellations(lat, lon, azimuth, radius=10, when=None):
 
     closest_constellation = None
     min_dist = 999
-
     for const_name, const_data in constellations.items():
         try:
-            star_coords = [SkyCoord.from_name(name) for name in const_data.get("major_stars", [])]
+            major_stars = const_data.get("major_stars", [])
+            if not major_stars:
+                continue
+            star_coords = []
+            for s in major_stars:
+                try:
+                    match = next((x for x in stars if x.get("name") == s), None)
+                    if match:
+                        star_coords.append(SkyCoord(ra=match["ra"] * u.deg, dec=match["dec"] * u.deg))
+                except Exception:
+                    continue
             if not star_coords:
                 continue
-            avg_ra = sum(s.ra.deg for s in star_coords) / len(star_coords)
-            avg_dec = sum(s.dec.deg for s in star_coords) / len(star_coords)
+            avg_ra = sum(sc.ra.deg for sc in star_coords) / len(star_coords)
+            avg_dec = sum(sc.dec.deg for sc in star_coords) / len(star_coords)
             const_coord = SkyCoord(ra=avg_ra * u.deg, dec=avg_dec * u.deg)
             const_altaz = const_coord.transform_to(altaz_frame)
             if const_altaz.alt < 0 * u.deg:
                 continue
             dist = center_coord.separation(const_altaz).deg
             if dist < min_dist:
+                min_dist = dist
                 closest_constellation = {
                     "name": const_name,
                     "description": const_data.get("description"),
@@ -52,46 +65,35 @@ def identify_visible_constellations(lat, lon, azimuth, radius=10, when=None):
                     "major_stars": const_data.get("major_stars"),
                     "distance_deg": round(dist, 2),
                 }
-                min_dist = dist
         except Exception:
             continue
-
     return closest_constellation
 
 
-def find_nearby_stars(lat, lon, azimuth, radius=10, when=None):
+# === Nearby Stars (Simplified version) ===
+def find_nearby_stars(lat, lon, azimuth, radius=15, when=None):
     stars, _ = load_data()
     when = when or datetime.utcnow()
-
     location = EarthLocation(lat=lat * u.deg, lon=lon * u.deg)
     time = Time(when)
     altaz_frame = AltAz(obstime=time, location=location)
     center_coord = SkyCoord(az=azimuth * u.deg, alt=45 * u.deg, frame=altaz_frame)
 
-    results = []
-
-    for star in stars:
+    visible = []
+    for s in stars:
         try:
-            star_coord = SkyCoord(ra=star["ra"] * u.deg, dec=star["dec"] * u.deg, frame='icrs')
+            star_coord = SkyCoord(ra=s["ra"] * u.deg, dec=s["dec"] * u.deg, frame="icrs")
             star_altaz = star_coord.transform_to(altaz_frame)
-
-            if star_altaz.alt < 0 * u.deg:
+            if star_altaz.alt <= 0 * u.deg:
                 continue
-
             separation = center_coord.separation(star_altaz).deg
             if separation <= radius:
-                star_info = {
-                    "name": star.get("name"),
-                    "bayer": star.get("bayer"),
-                    "mag": star.get("mag"),
-                    "ra": star["ra"],
-                    "dec": star["dec"],
-                    "spectral_type": star.get("spectral_type"),
-                    "constellation": star.get("constellation"),
+                visible.append({
+                    "name": s.get("name"),
+                    "mag": s.get("mag"),
+                    "constellation": s.get("constellation"),
                     "distance_deg": round(separation, 2),
-                }
-                results.append(star_info)
+                })
         except Exception:
             continue
-
-    return sorted(results, key=lambda s: s["mag"])
+    return sorted(visible, key=lambda s: s.get("mag", 99))
