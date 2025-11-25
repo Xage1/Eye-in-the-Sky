@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from datetime import datetime
 from app.database import Base
 
 
@@ -9,4 +10,7 @@ class Lesson(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     category = Column(String)
-    difficulty = Column(String, nullable=False)
+    difficulty = Column(String, nullable=False, default="Medium")
+    created_at = Column(
+        String, default=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    )
