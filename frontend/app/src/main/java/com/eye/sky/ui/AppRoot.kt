@@ -15,6 +15,7 @@ enum class Tab { SkyGuide, Learn, NightWatch, Satellites }
 @Composable
 fun AppRoot() {
     var active by remember { mutableStateOf(Tab.SkyGuide) }
+    var showNebula by remember { mutableStateOf(false) }
     var authed by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var email by remember { mutableStateOf("demo@sky.app") }
@@ -57,15 +58,32 @@ fun AppRoot() {
     }
 
     Scaffold(
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(selected = active==Tab.SkyGuide, onClick = { active = Tab.SkyGuide }, label = { Text("Sky Guide") }, icon = {})
-                NavigationBarItem(selected = active==Tab.Learn, onClick = { active = Tab.Learn }, label = { Text("Astronomy 101") }, icon = {})
-                NavigationBarItem(selected = active==Tab.NightWatch, onClick = { active = Tab.NightWatch }, label = { Text("Night Watch") }, icon = {})
-                NavigationBarItem(selected = active==Tab.Satellites, onClick = { active = Tab.Satellites }, label = { Text("Satellites") }, icon = {})
-            }
+    bottomBar = {
+        NavigationBar {
+            NavigationBarItem(
+                selected = active == Tab.SkyGuide,
+                onClick = { showNebula = true; active = Tab.SkyGuide },
+                label = { Text("Sky Guide") }, icon = {}
+            )
+            NavigationBarItem(
+                selected = active == Tab.Learn,
+                onClick = { showNebula = true; active = Tab.Learn },
+                label = { Text("Astronomy 101") }, icon = {}
+            )
+            NavigationBarItem(
+                selected = active == Tab.NightWatch,
+                onClick = { showNebula = true; active = Tab.NightWatch },
+                label = { Text("Night Watch") }, icon = {}
+            )
+            NavigationBarItem(
+                selected = active == Tab.Satellites,
+                onClick = { showNebula = true; active = Tab.Satellites },
+                label = { Text("Satellites") }, icon = {}
+            )
         }
-    ) { pad ->
+    }
+) { pad ->
+    NebulaTransition(visible = showNebula) {
         Box(Modifier.padding(pad)) {
             when (active) {
                 Tab.SkyGuide -> SkyGuideScreen()
@@ -73,6 +91,14 @@ fun AppRoot() {
                 Tab.NightWatch -> NightSkyWatchScreen()
                 Tab.Satellites -> SatellitesScreen()
             }
+        }
+    }
+
+    // reset nebula after brief play
+    LaunchedEffect(showNebula) {
+        if (showNebula) {
+            kotlinx.coroutines.delay(650)
+            showNebula = false
         }
     }
 }
