@@ -49,11 +49,20 @@ interface ApiService {
     @GET("lessons/") suspend fun lessons(): List<Lesson>
 
     // --- Quiz ---
-    @GET("quiz/") suspend fun quiz(@Query("difficulty") difficulty: String?, @Query("topic") topic: String?): List<QuizQuestionDto>
-    @POST("quiz/submit") suspend fun submitQuiz(@Body payload: QuizSubmissionCreate): QuizSubmissionOut
-    @GET("quiz/history") suspend fun quizHistory(): List<QuizSubmissionOut>
+    @GET("quiz/")
+        suspend fun quiz(
+        @Query("difficulty") difficulty: String?,
+        @Query("topic") topic: String?
+    ): List<QuizQuestionDto>
 
-    // --- Sky info & events ---
+    @POST("quiz/submit")
+        suspend fun submitQuiz(
+    @Body payload: QuizSubmissionCreate
+    ): QuizSubmissionOut
+
+    @GET("quiz/history")
+        suspend fun quizHistory(): List<QuizSubmissionOut>
+// --- Sky info & events ---
     @GET("skyinfo/visibility") suspend fun visibility(@Query("lat") lat: Double, @Query("lon") lon: Double): VisibilityResp
     @GET("skyinfo/moon-phase") suspend fun moonPhase(@Query("lat") lat: Double, @Query("lon") lon: Double, @Query("date") date: String): MoonPhaseResp
     @GET("events/night-sky") suspend fun nightSky(@Query("lat") lat: Double, @Query("lon") lon: Double): NightSkyEventsResp
