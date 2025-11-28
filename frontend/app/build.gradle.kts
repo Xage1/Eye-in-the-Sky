@@ -62,6 +62,13 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$camerax")
     implementation("androidx.camera:camera-view:1.3.3")
 
+    // Lottie for Compose
+    implementation "com.airbnb.android:loitte-compose:6.1.0"
+
+// Exoplayer for ambient streamed audio playback
+    implementation "com.google.android.exoplayer:exoplayer-core:2.19.0"
+    implementation "com.google.android.exoplayer:exoplayer-ui:2.19.0"
+
     // Location (optional if you already provide coords)
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // Coroutines
