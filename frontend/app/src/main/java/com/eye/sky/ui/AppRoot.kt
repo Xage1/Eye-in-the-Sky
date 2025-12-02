@@ -1,5 +1,9 @@
 package com.eye.sky.ui
 
+
+import com.eye.sky.ui.components.NebulaTransition
+import com.eye.sky.audio.SoundManager
+import com.eye.sky.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
