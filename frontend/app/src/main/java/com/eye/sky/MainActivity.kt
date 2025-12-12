@@ -17,6 +17,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        //init SoundManager
+        com.eye.sky.audio.SoundManager.init(this)
+        //Preload short SFX
+        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.ui.galaxy_tap)
+        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.ui.meteor_swipe)
+        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.planet_alignment)
+
         val launcher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}
 
         if (!perms.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {

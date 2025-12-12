@@ -63,7 +63,7 @@ dependencies {
     implementation("androidx.camera:camera-view:1.3.3")
 
     // Lottie for Compose
-    implementation "com.airbnb.android:loitte-compose:6.1.0"
+    implementation "com.airbnb.android:lottie-compose:6.1.0"
 
 // Exoplayer for ambient streamed audio playback
     implementation "com.google.android.exoplayer:exoplayer-core:2.19.0"
