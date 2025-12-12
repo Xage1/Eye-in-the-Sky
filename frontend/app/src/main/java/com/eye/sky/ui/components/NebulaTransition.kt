@@ -1,13 +1,15 @@
 package com.eye.sky.ui.components
 
-import androidx.compsoe.animation.*
+import androidx.compsoe.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.airbnb.lottie.compose.*
 import com.eye.sky.audio.SoundManager
-import com.eye.sky.R
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.delay
 
