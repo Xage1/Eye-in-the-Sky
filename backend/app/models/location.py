@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Float, Integer, String
-from app.database import Base  # if Base is in app/database.py
+from sqlalchemy import Column, Float, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from app.database import Base
 
-class LocationEntry(Base):
+class Location(Base):
     __tablename__ = "location_entries"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -12,5 +13,9 @@ class LocationEntry(Base):
     state = Column(String(128), nullable=True)
     city = Column(String(128), nullable=True)
 
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    user = relationship("User", back_populates="locations")
+
     def __repr__(self):
-        return f"<LocationEntry id={self.id} lat={self.latitude} lon={self.longitude}>"
+        return f"<Location id={self.id} lat={self.latitude} lon={self.longitude}>"
