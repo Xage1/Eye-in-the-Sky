@@ -16,7 +16,7 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()
+         db.close()
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
