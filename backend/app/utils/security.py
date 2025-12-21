@@ -30,9 +30,13 @@ def create_access_token(subject: str, expires_minutes: int = ACCESS_TOKEN_EXPIRE
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str) -> str:
+def decode_access_token(token: str) -> Optional[dict]:
+    """
+    Decode a JWT access token and return the payload dictionary.
+    Returns None if token is invalid or expired.
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload.get("sub")
+        return payload  # return the full dict, not just "sub"
     except JWTError:
         return None
