@@ -7,7 +7,7 @@ from app.database import SessionLocal
 from app.models.user import User
 from app.utils.security import decode_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 # Async database dependency
