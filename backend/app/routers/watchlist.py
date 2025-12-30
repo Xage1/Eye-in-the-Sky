@@ -1,19 +1,21 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import Session
 from app.models.star_watchlist import StarWatchlist
 from app.schemas.star_watchlist import StarWatchCreate, StarWatchOut
 from app.utils.deps import get_current_user, get_db
+from app.utils.constellations import load_constellations
 from app.models.user import User
 
-router = APIRouter(prefix="/watchlist", tags=["Watchlist"])
+router = APIRouter(prefix="/watchlist", tags=["StarWatchlist"])
 
 VALID_CONSTELLATIONS = load_constellations()
 
 
-@router.post("", response_model=WatchlistOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=StarWatchCreate, status_code=status.HTTP_201_CREATED)
 def add_to_watchlist(
-    payload: WatchlistAdd,
+    payload: StarWatchCreate,
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
@@ -24,7 +26,7 @@ def add_to_watchlist(
         )
 
     existing = (
-        db.query(Watchlist)
+        db.query(StarWatchlist)
         .filter_by(user_id=user.id, constellation=payload.constellation)
         .first()
     )
@@ -34,7 +36,7 @@ def add_to_watchlist(
             detail="Constellation already in watchlist"
         )
 
-    item = Watchlist(
+    item = StarWatchlist(
         user_id=user.id,
         constellation=payload.constellation
     )
