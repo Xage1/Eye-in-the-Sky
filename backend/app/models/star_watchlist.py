@@ -13,5 +13,4 @@ class StarWatchlist(Base):
     description = Column(Text, nullable=True)
     added_at = Column(DateTime, default=datetime.utcnow)
 
-    # Assuming a User model exists
     user = relationship("User", back_populates="star_watchlist")  # Back reference to User model

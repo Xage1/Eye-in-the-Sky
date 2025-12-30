@@ -67,3 +67,40 @@ async def login(payload: LoginIn, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserOut)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+#------Checking authentication health-----
+@router.get("/auth/health")
+async def auth_health_check(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User.hashed_password))
+    hashes = result.scalars().all()
+
+
+    stats = {
+        "total_users": len(hashes),
+        "bcrypt": 0,
+        "argon2": 0,
+        "unknown": 0,
+    }
+
+    for h in hashes:
+        try:
+            scheme = pwd_context.identify(h)
+            if scheme == "bcrypt":
+                stats["bcrypt"] +=1
+            elif scheme == "argon2":
+                stats["argons2"] +=1
+            else:
+                stats["unknown"] +=1
+        except Exception:
+            stats["unknown"] += 1
+
+    return {
+        "status": "ok",
+        "password_schemes": stats,
+        "recomended_action": (
+            "Users will be upgraded automatically on login"
+            if stats["bcrypt"] > 0
+            else "No action needed"
+        ),
+    }
