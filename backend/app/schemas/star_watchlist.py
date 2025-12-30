@@ -5,7 +5,7 @@ from typing import Optional
 class StarWatchCreate(BaseModel):
     star_name: str
     constellation: Optional[str] = None
-    description: Optional[str] = None  # ✅ Included
+    description: Optional[str] = None
 
 class StarWatchOut(StarWatchCreate):
     id: int
