@@ -13,39 +13,38 @@ router = APIRouter(prefix="/watchlist", tags=["StarWatchlist"])
 VALID_CONSTELLATIONS = load_constellations()
 
 
-@router.post("/", response_model=StarWatchCreate, status_code=status.HTTP_201_CREATED)
-def add_to_watchlist(
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def add_to_watchlist(
     payload: StarWatchCreate,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    if payload.constellation not in VALID_CONSTELLATIONS:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid constellation name"
-        )
-
-    existing = (
-        db.query(StarWatchlist)
-        .filter_by(user_id=user.id, constellation=payload.constellation)
-        .first()
+    # Prevent Duplicates
+    stmt = select(StarWatchlist).where(
+        StarWatchlist.user_id == current_user.id,
+        StarWatchlist.star_name == payload.star_name,
     )
+    result = await db.execute(stmt)
+    existing = result.scalars().first()
+
     if existing:
-        raise HTTPException(
-            status_code=409,
-            detail="Constellation already in watchlist"
-        )
-
-    item = StarWatchlist(
-        user_id=user.id,
-        constellation=payload.constellation
+        raise HTTPException(status_code=400, detail= "Star already in Watchlist")
+    
+    entry = StarWatchlist(
+        user_id=current_user.id,
+        star_name=payload.star_name,
+        description=payload.description,
     )
-    db.add(item)
-    db.commit()
-    db.refresh(item)
 
-    return item
+    db.add(entry)
+    await db.commit()
+    await db.refresh(entry)
 
+    return {
+        "id": entry.id,
+        "star_name": entry.star_name,
+        "description": entry.description
+    }
 
 @router.get("/", response_model=list[StarWatchOut])
 async def get_watchlist(
