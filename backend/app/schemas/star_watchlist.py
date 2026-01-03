@@ -10,7 +10,10 @@ class StarWatchCreate(BaseModel):
 class StarWatchOut(StarWatchCreate):
     id: int
     user_id: int
-    added_on: datetime
+    star_name: str
+    constellation: str
+    description: Optional[str] = None
+    added_at: datetime
 
     class Config:
         orm_mode = True
