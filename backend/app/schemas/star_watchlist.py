@@ -11,7 +11,6 @@ class StarWatchOut(StarWatchCreate):
     id: int
     user_id: int
     star_name: str
-    constellation: str
     description: Optional[str] = None
     added_at: datetime
 

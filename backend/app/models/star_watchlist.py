@@ -10,6 +10,7 @@ class StarWatchlist(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     star_name = Column(String, nullable=False)
+    constellation = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     added_at = Column(DateTime, default=datetime.utcnow)
 

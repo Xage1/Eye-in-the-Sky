@@ -33,8 +33,14 @@ async def add_to_watchlist(
     entry = StarWatchlist(
         user_id=current_user.id,
         star_name=payload.star_name,
+        constellation=payload.constellation,
         description=payload.description,
     )
+    if payload.constellation not in VALID_CONSTELLATIONS:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid Constellation"
+        )
 
     db.add(entry)
     await db.commit()
