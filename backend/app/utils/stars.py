@@ -1,0 +1,12 @@
+import json
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+STARS_PATH = BASE_DIR / "data" / "stars.json"
+
+def load_star_map() -> dict[str, str]:
+    if not STARS_PATH.exists():
+        raise FileNotFoundError("stars.json not found")
+    
+    with STARS_PATH.open("r", encoding="utf-8") as f:
+        return {k.lower(): v for k, v in json.load(f).items()}

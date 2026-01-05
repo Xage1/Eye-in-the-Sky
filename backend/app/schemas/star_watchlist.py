@@ -4,7 +4,6 @@ from typing import Optional
 
 class StarWatchCreate(BaseModel):
     star_name: str = Field(..., min_length=1)
-    constellation: str = Field(..., min_length=1)
     description: str | None = None
 
 class StarWatchOut(StarWatchCreate):
