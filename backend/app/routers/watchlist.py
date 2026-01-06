@@ -12,44 +12,52 @@ from app.models.user import User
 router = APIRouter(prefix="/watchlist", tags=["StarWatchlist"])
 
 VALID_CONSTELLATIONS = load_constellations()
-STAR_MAP = load_star_map()  # ✅ must be dict[str, str]
+STAR_MAP = load_star_map()  # dict[str, dict]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=StarWatchOut)
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=StarWatchOut,
+)
 async def add_to_watchlist(
     payload: StarWatchCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
-    star_name = payload.star_name.strip()
+    # 🔹 Normalize once
+    normalized_star = payload.star_name.strip().lower()
 
-    # 🔍 Resolve constellation automatically
-    constellation = STAR_MAP.get(star_name)
-
-    if not constellation:
+    star_data = STAR_MAP.get(normalized_star)
+    if not star_data:
         raise HTTPException(
             status_code=400,
-            detail="Star not recognized — cannot determine constellation"
+            detail="Star not found in catalog",
         )
+
+    constellation = star_data["constellation"]
 
     if constellation not in VALID_CONSTELLATIONS:
         raise HTTPException(
             status_code=500,
-            detail="Resolved constellation is invalid (data integrity error)"
+            detail="Resolved constellation is invalid (catalog integrity error)",
         )
 
     # 🚫 Prevent duplicates per user
     stmt = select(StarWatchlist).where(
         StarWatchlist.user_id == current_user.id,
-        StarWatchlist.star_name == star_name,
+        StarWatchlist.star_name == star_data["proper_name"],
     )
     result = await db.execute(stmt)
     if result.scalars().first():
-        raise HTTPException(status_code=400, detail="Star already in watchlist")
+        raise HTTPException(
+            status_code=400,
+            detail="Star already in watchlist",
+        )
 
     entry = StarWatchlist(
         user_id=current_user.id,
-        star_name=star_name,
+        star_name=star_data["proper_name"],
         constellation=constellation,
         description=payload.description,
     )
@@ -64,7 +72,7 @@ async def add_to_watchlist(
 @router.get("/", response_model=list[StarWatchOut])
 async def get_watchlist(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     result = await db.execute(
         select(StarWatchlist)
