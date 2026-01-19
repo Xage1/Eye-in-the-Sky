@@ -1,12 +1,52 @@
 import json
 from pathlib import Path
+from functools import lru_cache
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-STARS_PATH = BASE_DIR / "app" / "data" / "stars.json"
+DATA_FILE = BASE_DIR / "app" /  "data" / "stars_catalogue.json"
 
-def load_star_map() -> dict[str, str]:
-    if not STARS_PATH.exists():
-        raise FileNotFoundError(f"stars.json not found at {STARS_PATH}")
-    
-    with STARS_PATH.open("r", encoding="utf-8") as f:
-        return json.load(f)
+
+def normalize(value: str) -> str:
+    return value.lower().strip()
+
+
+@lru_cache
+def load_star_map() -> dict[str, dict]:
+    """
+    Returns:
+    {
+        "aldebaran": {...},
+        "α tau": {...},
+        "hr_1457": {...}
+    }
+    """
+    with DATA_FILE.open("r", encoding="utf-8") as f:
+        catalogue = json.load(f)
+
+    star_map: dict[str, dict] = {}
+
+    for star in catalogue["stars"]:
+        identifiers = star.get("identifiers", {})
+        common = identifiers.get("common_name")
+        bayer = identifiers.get("bayer_designation")
+        star_id = star["id"]
+
+        entry = {
+            "id": star_id,
+            "proper_name": common or bayer or f"HR {star_id}",
+            "constellation": star["constellation"]["name"],
+            "iau_abbreviation": star["constellation"].get("iau_abbreviation"),
+            "ra": star["coordinates"]["ra"],
+            "dec": star["coordinates"]["dec"],
+            "magnitude": star["photometry"]["visual_magnitude"],
+        }
+
+        if common:
+            star_map[normalize(common)] = entry
+
+        if bayer:
+            star_map[normalize(bayer)] = entry
+
+        star_map[f"hr_{star_id}"] = entry
+
+    return star_map
