@@ -1,0 +1,166 @@
+version: "3.9"
+
+# ============================================================
+#  Eye in the Sky — Full Stack Docker Compose
+#  Services: api · worker · postgres · redis
+#  Run: docker-compose up --build
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  #  PostgreSQL — primary database
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: eyesky_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kenneth1998}
+      POSTGRES_DB: ${POSTGRES_DB:-eye_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-eye_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eyesky_net
+
+  # ----------------------------------------------------------
+  #  Redis — cache, pub/sub, Celery broker
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: eyesky_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - eyesky_net
+
+  # ----------------------------------------------------------
+  #  FastAPI — main backend API
+  # ----------------------------------------------------------
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eyesky_api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      # Override localhost URLs to use Docker service names
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-supersecretastronomyjwt}
+      ALGORITHM: HS256
+      ASTRONOMY_API_KEY: ${ASTRONOMY_API_KEY:-}
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      N2YO_API_KEY: ${N2YO_API_KEY:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app           # live reload — remove in production
+    networks:
+      - eyesky_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------
+  #  Celery Worker — background jobs
+  #  TLE refresh every 6h · event alert scheduler
+  # ----------------------------------------------------------
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eyesky_worker
+    restart: unless-stopped
+    command: >
+      celery -A app.worker worker
+      --loglevel=info
+      --concurrency=2
+      -Q default,tle_refresh,alerts
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-supersecretastronomyjwt}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - eyesky_net
+
+  # ----------------------------------------------------------
+  #  Celery Beat — periodic task scheduler
+  #  Triggers TLE refresh, weather checks, event checks
+  # ----------------------------------------------------------
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eyesky_beat
+    restart: unless-stopped
+    command: >
+      celery -A app.worker beat
+      --loglevel=info
+      --scheduler celery.beat:PersistentScheduler
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - worker
+      - redis
+    volumes:
+      - ./backend:/app
+      - beat_schedule:/app/celerybeat-schedule
+    networks:
+      - eyesky_net
+
+# ============================================================
+#  Named volumes — data persists across container restarts
+# ============================================================
+volumes:
+  postgres_data:
+  redis_data:
+  beat_schedule:
+
+# ============================================================
+#  Internal network — services talk by name, not localhost
+# ============================================================
+networks:
+  eyesky_net:
+    driver: bridge
