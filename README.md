@@ -88,6 +88,9 @@ Built with **Kotlin + Jetpack Compose** on Android and a **Python (FastAPI) + Po
 
 ## Architecture
 
+
+![Eye in the Sky Architecture](./assets/eye_in_the_sky_architecture.svg)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │               Android App (Kotlin / Jetpack Compose)        │
