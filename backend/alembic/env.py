@@ -24,7 +24,7 @@ if db_url:
 from app.database import Base
 from app.models.user import User
 from app.models.user_settings import UserSettings
-from app.models.location import LocationEntry
+from app.models.location import Location
 from app.models.quiz import QuizQuestion
 from app.models.quiz_answer import QuizAnswer
 from app.models.quiz_submission import QuizSubmission
