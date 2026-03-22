@@ -97,28 +97,28 @@ Built with **Kotlin + Jetpack Compose** on Android and a **Python (FastAPI) + Po
 │                                                             │
 │  AR Star Map  │  Astronomy 101  │  Sky Watch  │  Satellites │
 │                                                             │
-│  CameraX + SensorManager → AR overlay renderer             │
-│  Retrofit / OkHttp → FastAPI backend (HTTPS)               │
+│  CameraX + SensorManager → AR overlay renderer              │
+│  Retrofit / OkHttp → FastAPI backend (HTTPS)                │
 └─────────────────────────────────────────────────────────────┘
                             │ HTTPS / WebSocket
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              Python FastAPI Gateway                         │
 │                                                             │
-│  Auth  │  Quiz/Lesson  │  Sky Engine  │  Events  │  TLE    │
+│  Auth  │  Quiz/Lesson  │  Sky Engine  │  Events  │  TLE     │
 │                                                             │
-│  Redis cache  <->  Celery workers (TLE refresh, alerts)    │
+│  Redis cache  <->  Celery workers (TLE refresh, alerts)     │
 └────────────┬───────────────────────────┬────────────────────┘
              │                           │
              ▼                           ▼
      ┌───────────────┐         ┌──────────────────────┐
-     │  PostgreSQL   │         │   External APIs       │
-     │               │         │                       │
-     │  Users        │         │  CelesTrak (TLE)      │
-     │  Quiz/Lessons │         │  NASA APOD / Events   │
-     │  Events       │         │  Open Notify (ISS)    │
-     │  Watchlist    │         │  OpenWeather          │
-     │  Locations    │         │  Stellarium catalog   │
+     │  PostgreSQL   │         │   External APIs      │
+     │               │         │                      │
+     │  Users        │         │  CelesTrak (TLE)     │
+     │  Quiz/Lessons │         │  NASA APOD / Events  │
+     │  Events       │         │  Open Notify (ISS)   │
+     │  Watchlist    │         │  OpenWeather         │
+     │  Locations    │         │  Stellarium catalog  │
      └───────────────┘         └──────────────────────┘
 ```
 
