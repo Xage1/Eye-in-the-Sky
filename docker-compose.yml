@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kenneth1998}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kenneth1998**}
       POSTGRES_DB: ${POSTGRES_DB:-eye_db}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -64,8 +64,8 @@ services:
       - ./backend/.env
     environment:
       # Override localhost URLs to use Docker service names
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
-      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY:-supersecretastronomyjwt}
       ALGORITHM: HS256
@@ -107,8 +107,8 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
-      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY:-supersecretastronomyjwt}
     depends_on:
@@ -138,8 +138,8 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
-      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
+      DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
       REDIS_URL: redis://redis:6379/0
     depends_on:
       - worker
