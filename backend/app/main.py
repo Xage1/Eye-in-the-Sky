@@ -1,9 +1,14 @@
+"""
+Eye in the Sky API
+"""
+
+from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
-import logging
 
-# === Routers ===
 from app.routers import (
     auth,
     constellations,
@@ -17,24 +22,37 @@ from app.routers import (
     events,
     satellites,
     sky_routes,
+    payments,
 )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.info("🚀 Registered Routes:")
+    for route in app.routes:
+        if isinstance(route, APIRoute):
+            methods = ",".join(route.methods)
+            logger.info(f"{methods:10s} | {route.path}")
+    yield
+
 
 app = FastAPI(
     title="Eye in the Sky API",
-    description="Celestial object identification and AR astronomy API.",
-    version="1.0.0"
+    description="Celestial object identification, AR astronomy, and subscription management.",
+    version="1.1.0",
+    lifespan=lifespan,
 )
 
-# === CORS Configuration ===
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can narrow this down later for security
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# === Include Routers ===
 app.include_router(auth.router)
 app.include_router(constellations.router)
 app.include_router(celestial.router)
@@ -47,18 +65,9 @@ app.include_router(lessons.router)
 app.include_router(events.router)
 app.include_router(satellites.router)
 app.include_router(sky_routes.router)
+app.include_router(payments.router)
 
-# === Root Endpoint ===
+
 @app.get("/")
 def root():
-    return {"message": "🌌 Eye in the Sky API is running!"}
-
-# === Startup Route Logger ===
-@app.on_event("startup")
-async def list_routes():
-    logging.basicConfig(level=logging.INFO)
-    logging.info("🚀 Registered Routes:")
-    for route in app.routes:
-        if isinstance(route, APIRoute):
-            methods = ",".join(route.methods)
-            logging.info(f"{methods:10s} | {route.path}")
+    return {"message": "🌌 Eye in the Sky API is running!", "version": "1.1.0"}
