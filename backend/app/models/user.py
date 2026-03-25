@@ -1,27 +1,74 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.asyncio import AsyncSession
+"""
+app/models/user.py
+ 
+"""
+
+from sqlalchemy import (
+    Boolean, Column, DateTime, Enum, Integer, String, Text, func
+)
+from sqlalchemy.orm import relationship
+import enum
+
 from app.database import Base
-from sqlalchemy.orm import relationship, declarative_base
-from app.models.user_settings import UserSettings
+
+class UserRole(str, enum.Enum):
+    admin = "admin"
+    user = "user"
+    premium = "premium"
+
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String(120), nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_verified = Column(Boolean, default=False, nullable=False)
 
-    # Existing relationship
-    locations = relationship("Location", back_populates="user", cascade="all")
 
-    # One-to-one relationship for settings
+    # ── Extended profile ──────────────────────────────────────────────────────
+
+    avatar_url = Column(String(500), nullable=True)
+    bio = Column(Text, nullable=True)
+    location = Column(String(200), nullable=True)
+    country = Column(String(100), nullable=True)
+    timezone = Column(String(80), nullable=True, default="UTC")
+    language = Column(String(20), nullable=True, default="en")
+    date_of_birth = Column(DateTime, nullable=True)
+    occupation = Column(String(150), nullable=True)
+    astronomy_level = Column(String(50), nullable=True, default="beginner")
+
+
+    # ── Social handles ──────────────────────────────────────────────────────
+
+    x_handle = Column(String(100), nullable=True)
+    instagram_handle = Column(String(100), nullable=True)
+    website_url = Column(String(300), nullable=True)
+
+    # ── Timestamps ────────────────────────────────────────────────────────────
+    created_at      = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at      = Column(DateTime(timezone=True), onupdate=func.now())
+    last_login      = Column(DateTime(timezone=True), nullable=True)
+ 
+    # ── Relationships ─────────────────────────────────────────────────────────
     settings = relationship(
         "UserSettings",
         back_populates="user",
         uselist=False,
         cascade="all",
-        lazy="selectin"
+        lazy="selectin",
     )
-
+    locations      = relationship("Location",     back_populates="user", cascade="all")
     star_watchlist = relationship("StarWatchlist", back_populates="user", cascade="all")
+    quiz_submissions = relationship("QuizSubmission", back_populates="user", cascade="all")
+    subscription   = relationship(
+        "UserSubscription",
+        back_populates="user",
+        uselist=False,
+        cascade="all",
+        lazy="selectin",
+    )
+    transactions   = relationship("Transaction", back_populates="user", cascade="all")
