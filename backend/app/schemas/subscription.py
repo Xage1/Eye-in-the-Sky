@@ -45,8 +45,9 @@ class TransactionOut(BaseModel):
     mpesa_receipt_number: Optional[str] = None
     mpesa_phone:          Optional[str] = None
 
-    # Stripe
-    stripe_payment_intent_id: Optional[str] = None
+    # Paystack
+    paystack_reference: Optional[str] = None
+    paystack_channel:   Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -56,16 +57,3 @@ class MpesaSTKRequest(BaseModel):
     phone:    str
     plan:     PlanTier
     interval: PlanInterval = PlanInterval.monthly
-
-
-# ── Stripe checkout request ───────────────────────────────────────────────────
-class StripeCheckoutRequest(BaseModel):
-    plan:         PlanTier
-    interval:     PlanInterval = PlanInterval.monthly
-    success_url:  str
-    cancel_url:   str
-
-
-class StripeCheckoutOut(BaseModel):
-    checkout_url: str
-    session_id:   str

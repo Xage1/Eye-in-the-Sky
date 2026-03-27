@@ -47,7 +47,7 @@ class UserProfileUpdate(BaseModel):
     language:         Optional[str]   = None
     occupation:       Optional[str]   = None
     astronomy_level:  Optional[str]   = None
-    twitter_handle:   Optional[str]   = None
+    x_handle:         Optional[str]   = None
     instagram_handle: Optional[str]   = None
     website_url:      Optional[str]   = None
 
@@ -70,7 +70,7 @@ class UserOut(BaseModel):
     language:         Optional[str]      = None
     occupation:       Optional[str]      = None
     astronomy_level:  Optional[str]      = None
-    twitter_handle:   Optional[str]      = None
+    x_handle:         Optional[str]      = None
     instagram_handle: Optional[str]      = None
     website_url:      Optional[str]      = None
 

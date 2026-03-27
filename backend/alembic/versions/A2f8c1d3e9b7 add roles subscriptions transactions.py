@@ -45,9 +45,9 @@ def upgrade() -> None:
         sa.Column('status', sa.String(20), nullable=False, server_default='active'),
         sa.Column('interval', sa.String(20), nullable=False, server_default='monthly'),
         sa.Column('provider', sa.String(20), nullable=True),
-        sa.Column('stripe_customer_id', sa.String(100), nullable=True),
-        sa.Column('stripe_subscription_id', sa.String(100), nullable=True),
-        sa.Column('stripe_price_id', sa.String(100), nullable=True),
+        sa.Column('paystack_customer_id', sa.String(100), nullable=True),
+        sa.Column('paystack_reference', sa.String(100), nullable=True),
+        
         sa.Column('mpesa_phone', sa.String(20), nullable=True),
         sa.Column('started_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column('current_period_start', sa.DateTime(timezone=True), nullable=True),
@@ -56,7 +56,7 @@ def upgrade() -> None:
         sa.Column('trial_ends_at', sa.DateTime(timezone=True), nullable=True),
     )
     op.create_index('ix_user_subscriptions_user_id', 'user_subscriptions', ['user_id'])
-    op.create_index('ix_user_subscriptions_stripe_customer_id', 'user_subscriptions', ['stripe_customer_id'])
+    op.create_index('ix_user_subscriptions_paystack_customer_id', 'user_subscriptions', ['paystack_customer_id'])
 
     # ── transactions ──────────────────────────────────────────────────────────
     op.create_table(
@@ -73,8 +73,8 @@ def upgrade() -> None:
         sa.Column('mpesa_merchant_request_id', sa.String(100), nullable=True),
         sa.Column('mpesa_receipt_number', sa.String(50), nullable=True),
         sa.Column('mpesa_phone', sa.String(20), nullable=True),
-        sa.Column('stripe_payment_intent_id', sa.String(100), nullable=True),
-        sa.Column('stripe_invoice_id', sa.String(100), nullable=True),
+        sa.Column('paystack_reference', sa.String(100), nullable=True),
+        sa.Column('paystack_channel', sa.String(50), nullable=True),
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('failure_reason', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
@@ -82,7 +82,7 @@ def upgrade() -> None:
     )
     op.create_index('ix_transactions_user_id', 'transactions', ['user_id'])
     op.create_index('ix_transactions_mpesa_checkout_request_id', 'transactions', ['mpesa_checkout_request_id'])
-    op.create_index('ix_transactions_stripe_payment_intent_id', 'transactions', ['stripe_payment_intent_id'])
+    op.create_index('ix_transactions_paystack_reference', 'transactions', ['paystack_reference'])
 
 
 def downgrade() -> None:
