@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = ("com.eye.sky")
+    namespace = "com.eye.sky"
     compileSdk = 34
 
     defaultConfig {
@@ -21,15 +21,9 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
-    packaging {
-        resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1")
-    }
+    buildFeatures { compose = true }
+    composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
+    packaging { resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1") }
 }
 
 dependencies {
@@ -48,29 +42,39 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
 
-    // Retrofit/OkHttp/Moshi
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Retrofit / OkHttp / Moshi
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
 
-    // CameraX for AR overlay
+    // CameraX
     val camerax = "1.3.4"
     implementation("androidx.camera:camera-core:$camerax")
     implementation("androidx.camera:camera-camera2:$camerax")
     implementation("androidx.camera:camera-lifecycle:$camerax")
     implementation("androidx.camera:camera-view:1.3.3")
 
-    // Lottie for Compose
-    implementation "com.airbnb.android:lottie-compose:6.1.0"
+    // Lottie — FIXED from Groovy to Kotlin DSL
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
 
-// Exoplayer for ambient streamed audio playback
-    implementation "com.google.android.exoplayer:exoplayer-core:2.19.0"
-    implementation "com.google.android.exoplayer:exoplayer-ui:2.19.0"
+    // Media3 replaces deprecated ExoPlayer 2.x
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
 
-    // Location (optional if you already provide coords)
+    // Location
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+
+    // DataStore — persist auth token + user settings
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Coil — image loading for avatars + APOD
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

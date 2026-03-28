@@ -39,7 +39,7 @@ from app.services.paystack_service import (
     verify_webhook_signature,
     parse_webhook,
 )
-from app.services.mpesa_service import initiate_stk_push, parse_stk_callback
+from app.services.mpesa_services import initiate_stk_push, parse_stk_callback
 from app.utils.deps import get_db, get_current_user
 
 logger = logging.getLogger(__name__)

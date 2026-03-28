@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-
 class QuizAnswerIn(BaseModel):
     question_id: int
     selected_answer: str
@@ -13,14 +12,13 @@ class QuizSubmissionCreate(BaseModel):
 
 class QuizAnswerOut(QuizAnswerIn):
     id: int
+    model_config = {"from_attributes": True}
 
 class QuizSubmissionOut(BaseModel):
     id: int
     user_id: int
-    timestamp: datetime
+    timestamp: Optional[datetime] = None
     score: int
     total_questions: int
-    answers: List[QuizAnswerOut]
-
-    class Config:
-        orm_mode = True
+    answers: List[QuizAnswerOut] = []
+    model_config = {"from_attributes": True}

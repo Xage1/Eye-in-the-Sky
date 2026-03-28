@@ -7,10 +7,8 @@ class LocationCreate(BaseModel):
 
 class LocationOut(LocationCreate):
     id: int
-    city: Optional[str]
-    country: Optional[str]
-    timestamp: str
+    city: Optional[str] = None
+    country: Optional[str] = None
+    timestamp: Optional[str] = None
     user_id: int
-
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
