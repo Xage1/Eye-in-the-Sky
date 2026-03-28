@@ -6,6 +6,4 @@ class UserSettingsOut(BaseModel):
     dark_mode: bool
     default_difficulty: str
     notifications_enabled: bool
-
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
