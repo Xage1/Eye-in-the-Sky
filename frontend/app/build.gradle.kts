@@ -15,15 +15,37 @@ android {
         versionName = "1.0"
         vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-    buildFeatures { compose = true }
-    composeOptions { kotlinCompilerExtensionVersion = "1.5.14" }
-    packaging { resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1") }
+
+    buildFeatures { 
+        compose = true 
+    }
+
+    composeOptions { 
+        kotlinCompilerExtensionVersion = "1.5.14" 
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions { 
+        jvmTarget = "17" 
+    }
+
+    packaging { 
+        resources.excludes += setOf("META-INF/AL2.0", "META-INF/LGPL2.1") 
+    }
 }
 
 dependencies {
@@ -38,14 +60,12 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    // Lifecycle
+    // Lifecycle + Navigation
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
-
-    // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // Retrofit / OkHttp / Moshi
+    // Networking
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -59,22 +79,18 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$camerax")
     implementation("androidx.camera:camera-view:1.3.3")
 
-    // Lottie — FIXED from Groovy to Kotlin DSL
+    // Lottie
     implementation("com.airbnb.android:lottie-compose:6.4.0")
 
-    // Media3 replaces deprecated ExoPlayer 2.x
+    // Media3
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
 
     // Location
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
-    // Coroutines
+    // Coroutines + DataStore + Coil
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-
-    // DataStore — persist auth token + user settings
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-
-    // Coil — image loading for avatars + APOD
     implementation("io.coil-kt:coil-compose:2.6.0")
 }

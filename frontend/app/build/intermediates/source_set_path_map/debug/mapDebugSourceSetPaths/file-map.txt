@@ -1,0 +1,75 @@
+com.eye.sky.app-resValues-0 D:\DEV OPS\Eye-in-the-Sky\frontend\app\build\generated\res\resValues\debug
+com.eye.sky.app-packageDebugResources-1 D:\DEV OPS\Eye-in-the-Sky\frontend\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.eye.sky.app-packageDebugResources-2 D:\DEV OPS\Eye-in-the-Sky\frontend\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.eye.sky.app-debug-3 D:\DEV OPS\Eye-in-the-Sky\frontend\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.eye.sky.app-debug-4 D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\debug\res
+com.eye.sky.app-main-5 D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\res
+com.eye.sky.app-jetified-lifecycle-runtime-compose-release-6 D:\gradle-home\caches\transforms-4\02c6b5059efaae81cbc475dfccb92c26\transformed\jetified-lifecycle-runtime-compose-release\res
+com.eye.sky.app-fragment-1.3.6-7 D:\gradle-home\caches\transforms-4\05bcf608d06ecf5c02b16fdbb4098d0b\transformed\fragment-1.3.6\res
+com.eye.sky.app-jetified-ui-tooling-data-release-8 D:\gradle-home\caches\transforms-4\0a84ec48370e9fa740c7fc9b8c4b820f\transformed\jetified-ui-tooling-data-release\res
+com.eye.sky.app-jetified-ui-release-9 D:\gradle-home\caches\transforms-4\0ddc902a07855b808d79809dc5a17f85\transformed\jetified-ui-release\res
+com.eye.sky.app-jetified-media3-ui-1.3.1-10 D:\gradle-home\caches\transforms-4\17794ba02df64d9976a009ff44da49e1\transformed\jetified-media3-ui-1.3.1\res
+com.eye.sky.app-jetified-ui-tooling-release-11 D:\gradle-home\caches\transforms-4\189d204fd63d18738b3f1cf0766dfd68\transformed\jetified-ui-tooling-release\res
+com.eye.sky.app-jetified-lifecycle-viewmodel-ktx-2.8.4-12 D:\gradle-home\caches\transforms-4\1a24f274cc590fc6e53f17f475f3c276\transformed\jetified-lifecycle-viewmodel-ktx-2.8.4\res
+com.eye.sky.app-jetified-lottie-6.4.0-13 D:\gradle-home\caches\transforms-4\208f05d352e2a09ab688b7c2473cf5a7\transformed\jetified-lottie-6.4.0\res
+com.eye.sky.app-jetified-annotation-experimental-1.4.0-14 D:\gradle-home\caches\transforms-4\21750aab5d6f1156f2a7e7a417d2659f\transformed\jetified-annotation-experimental-1.4.0\res
+com.eye.sky.app-lifecycle-livedata-2.8.4-15 D:\gradle-home\caches\transforms-4\26fdb9a41232f661acb5e92f40d6b198\transformed\lifecycle-livedata-2.8.4\res
+com.eye.sky.app-jetified-ui-geometry-release-16 D:\gradle-home\caches\transforms-4\2798eb260f54ef00c5729dcafa334300\transformed\jetified-ui-geometry-release\res
+com.eye.sky.app-jetified-runtime-saveable-release-17 D:\gradle-home\caches\transforms-4\2b65b4aea69bb1445b30987c1672bd3c\transformed\jetified-runtime-saveable-release\res
+com.eye.sky.app-navigation-runtime-ktx-2.7.7-18 D:\gradle-home\caches\transforms-4\2d9138c12ef53180722af079ad6e7a45\transformed\navigation-runtime-ktx-2.7.7\res
+com.eye.sky.app-jetified-lifecycle-runtime-ktx-release-19 D:\gradle-home\caches\transforms-4\32b0187828eb828527d2f6f7ba946433\transformed\jetified-lifecycle-runtime-ktx-release\res
+com.eye.sky.app-jetified-savedstate-ktx-1.2.1-20 D:\gradle-home\caches\transforms-4\36207b8cfb966c2305f309a55b084a74\transformed\jetified-savedstate-ktx-1.2.1\res
+com.eye.sky.app-jetified-material-ripple-release-21 D:\gradle-home\caches\transforms-4\367b377b4230f19ab8d10e49ce0614b7\transformed\jetified-material-ripple-release\res
+com.eye.sky.app-jetified-lifecycle-runtime-release-22 D:\gradle-home\caches\transforms-4\380aea10faf0a6749b90c85098591984\transformed\jetified-lifecycle-runtime-release\res
+com.eye.sky.app-jetified-foundation-layout-release-23 D:\gradle-home\caches\transforms-4\3e004242d899ddcc07691c4b31aad957\transformed\jetified-foundation-layout-release\res
+com.eye.sky.app-jetified-customview-poolingcontainer-1.0.0-24 D:\gradle-home\caches\transforms-4\3e723a53dcb10fe817634ef4bc527ef9\transformed\jetified-customview-poolingcontainer-1.0.0\res
+com.eye.sky.app-navigation-common-ktx-2.7.7-25 D:\gradle-home\caches\transforms-4\3f5a23e75fc0581a13eade3a2f0ffb7c\transformed\navigation-common-ktx-2.7.7\res
+com.eye.sky.app-jetified-emoji2-views-helper-1.3.0-26 D:\gradle-home\caches\transforms-4\48c98804130189ac3b4c1032de2d880d\transformed\jetified-emoji2-views-helper-1.3.0\res
+com.eye.sky.app-jetified-animation-release-27 D:\gradle-home\caches\transforms-4\4b7e92b01045514d4c0068c2e09721ae\transformed\jetified-animation-release\res
+com.eye.sky.app-jetified-activity-compose-1.9.1-28 D:\gradle-home\caches\transforms-4\56e0a9541434517edf6e3a5e61020255\transformed\jetified-activity-compose-1.9.1\res
+com.eye.sky.app-jetified-play-services-base-18.5.0-29 D:\gradle-home\caches\transforms-4\5829a8c9ea507f0a2ce8af47910a2ef9\transformed\jetified-play-services-base-18.5.0\res
+com.eye.sky.app-navigation-runtime-2.7.7-30 D:\gradle-home\caches\transforms-4\5ed50ba93d5f921bdfb2c36a1a451e6f\transformed\navigation-runtime-2.7.7\res
+com.eye.sky.app-appcompat-1.6.1-31 D:\gradle-home\caches\transforms-4\665baf2cc52014c15586e3b81525c908\transformed\appcompat-1.6.1\res
+com.eye.sky.app-jetified-camera-lifecycle-1.3.4-32 D:\gradle-home\caches\transforms-4\666708721ad9beda39266bc96d41b3b8\transformed\jetified-camera-lifecycle-1.3.4\res
+com.eye.sky.app-jetified-material-icons-core-release-33 D:\gradle-home\caches\transforms-4\6a6bea120e6635a36450753e2b3d60e2\transformed\jetified-material-icons-core-release\res
+com.eye.sky.app-jetified-lifecycle-process-2.8.4-34 D:\gradle-home\caches\transforms-4\700c31c325bec1d78126dc478f39410e\transformed\jetified-lifecycle-process-2.8.4\res
+com.eye.sky.app-lifecycle-livedata-core-2.8.4-35 D:\gradle-home\caches\transforms-4\7139f68b35e4457bc827c09d915f571e\transformed\lifecycle-livedata-core-2.8.4\res
+com.eye.sky.app-jetified-runtime-release-36 D:\gradle-home\caches\transforms-4\74d2c56f3b1849bde4c07331f7c5a456\transformed\jetified-runtime-release\res
+com.eye.sky.app-recyclerview-1.3.0-37 D:\gradle-home\caches\transforms-4\7813f93962b6c236f428e6e616b56169\transformed\recyclerview-1.3.0\res
+com.eye.sky.app-jetified-datastore-core-release-38 D:\gradle-home\caches\transforms-4\79e3bb904d8f0634cd74f04efb7eac56\transformed\jetified-datastore-core-release\res
+com.eye.sky.app-jetified-ui-unit-release-39 D:\gradle-home\caches\transforms-4\7a16669bb65506a808daea0b4a84d4f9\transformed\jetified-ui-unit-release\res
+com.eye.sky.app-jetified-activity-1.9.1-40 D:\gradle-home\caches\transforms-4\7edbbbaa5192e0f08b2d8cbac7c7e62d\transformed\jetified-activity-1.9.1\res
+com.eye.sky.app-jetified-camera-core-1.3.4-41 D:\gradle-home\caches\transforms-4\91820a2ca9702bee268f908714611f1c\transformed\jetified-camera-core-1.3.4\res
+com.eye.sky.app-jetified-lifecycle-livedata-core-ktx-2.8.4-42 D:\gradle-home\caches\transforms-4\966865bce6787e53a15cea06d44f0236\transformed\jetified-lifecycle-livedata-core-ktx-2.8.4\res
+com.eye.sky.app-jetified-datastore-release-43 D:\gradle-home\caches\transforms-4\96cbe41c7c99340a33d10ad1420e3bd3\transformed\jetified-datastore-release\res
+com.eye.sky.app-jetified-camera-view-1.3.4-44 D:\gradle-home\caches\transforms-4\99dbfcc8577e69cee40b26b1a5e764f2\transformed\jetified-camera-view-1.3.4\res
+com.eye.sky.app-jetified-material-release-45 D:\gradle-home\caches\transforms-4\9bf430ece62b55e3b242e1c6e02d97d2\transformed\jetified-material-release\res
+com.eye.sky.app-jetified-startup-runtime-1.1.1-46 D:\gradle-home\caches\transforms-4\a3c3c47070acbb9229c5d1678aa85571\transformed\jetified-startup-runtime-1.1.1\res
+com.eye.sky.app-jetified-profileinstaller-1.3.1-47 D:\gradle-home\caches\transforms-4\a42ac3c3219cbb4c72f44228668d1dc5\transformed\jetified-profileinstaller-1.3.1\res
+com.eye.sky.app-jetified-lifecycle-viewmodel-compose-release-48 D:\gradle-home\caches\transforms-4\a5d2e20fe7f0c83d5f872a0e97e49935\transformed\jetified-lifecycle-viewmodel-compose-release\res
+com.eye.sky.app-jetified-play-services-basement-18.4.0-49 D:\gradle-home\caches\transforms-4\a62cb41924e68dea79306434cbb852d2\transformed\jetified-play-services-basement-18.4.0\res
+com.eye.sky.app-jetified-foundation-release-50 D:\gradle-home\caches\transforms-4\a79c3858234398e92a035e20a74d1775\transformed\jetified-foundation-release\res
+com.eye.sky.app-media-1.7.0-51 D:\gradle-home\caches\transforms-4\ab353ff5ed533dfc4e6448b323ef2946\transformed\media-1.7.0\res
+com.eye.sky.app-jetified-datastore-preferences-release-52 D:\gradle-home\caches\transforms-4\af04cae8a691b327807d9222e4e74d81\transformed\jetified-datastore-preferences-release\res
+com.eye.sky.app-jetified-navigation-compose-2.7.7-53 D:\gradle-home\caches\transforms-4\b0c4d7ce52f9b595698a7ca07228b405\transformed\jetified-navigation-compose-2.7.7\res
+com.eye.sky.app-jetified-lifecycle-viewmodel-savedstate-2.8.4-54 D:\gradle-home\caches\transforms-4\b2c66498c9caedf177fa9738c3e8a9d4\transformed\jetified-lifecycle-viewmodel-savedstate-2.8.4\res
+com.eye.sky.app-jetified-graphics-path-1.0.1-55 D:\gradle-home\caches\transforms-4\b34c4bff23a3dea97329a5390ea7e8ff\transformed\jetified-graphics-path-1.0.1\res
+com.eye.sky.app-jetified-savedstate-1.2.1-56 D:\gradle-home\caches\transforms-4\c030b2b7cfae130a238c4e834dcb595d\transformed\jetified-savedstate-1.2.1\res
+com.eye.sky.app-jetified-lifecycle-viewmodel-release-57 D:\gradle-home\caches\transforms-4\c10fcab74585cd44856e3e53eaac80ae\transformed\jetified-lifecycle-viewmodel-release\res
+com.eye.sky.app-jetified-appcompat-resources-1.6.1-58 D:\gradle-home\caches\transforms-4\c19ee3489f4b648d72da8b4d1f586202\transformed\jetified-appcompat-resources-1.6.1\res
+com.eye.sky.app-jetified-ui-graphics-release-59 D:\gradle-home\caches\transforms-4\d07de37667064a546fe07b218732264b\transformed\jetified-ui-graphics-release\res
+com.eye.sky.app-jetified-animation-core-release-60 D:\gradle-home\caches\transforms-4\d8f59d6e23707b10e9e5f532a90ccd8e\transformed\jetified-animation-core-release\res
+com.eye.sky.app-jetified-emoji2-1.3.0-61 D:\gradle-home\caches\transforms-4\da985c2b8b199a71c715690336afc3d8\transformed\jetified-emoji2-1.3.0\res
+com.eye.sky.app-jetified-camera-camera2-1.3.4-62 D:\gradle-home\caches\transforms-4\de2c8e32491cb1606455f597b7f16cd2\transformed\jetified-camera-camera2-1.3.4\res
+com.eye.sky.app-jetified-coil-base-2.6.0-63 D:\gradle-home\caches\transforms-4\df09c98f24b150f3069fef36730e9c14\transformed\jetified-coil-base-2.6.0\res
+com.eye.sky.app-core-runtime-2.2.0-64 D:\gradle-home\caches\transforms-4\df5e4e624526219a745b3d810623f420\transformed\core-runtime-2.2.0\res
+com.eye.sky.app-jetified-material3-release-65 D:\gradle-home\caches\transforms-4\dfdecf8434108223aac7eff445782b81\transformed\jetified-material3-release\res
+com.eye.sky.app-jetified-core-ktx-1.13.1-66 D:\gradle-home\caches\transforms-4\e10b2c7b9d9db89c963a6f9fd0624cbc\transformed\jetified-core-ktx-1.13.1\res
+com.eye.sky.app-jetified-camera-video-1.3.4-67 D:\gradle-home\caches\transforms-4\e28db9b37373ef146514e5d90af177dc\transformed\jetified-camera-video-1.3.4\res
+com.eye.sky.app-jetified-ui-util-release-68 D:\gradle-home\caches\transforms-4\ee5927222c24c5f3a68ecd79ee1a2168\transformed\jetified-ui-util-release\res
+com.eye.sky.app-core-1.13.1-69 D:\gradle-home\caches\transforms-4\f0092f1b5d10332cdd0c672f80053293\transformed\core-1.13.1\res
+com.eye.sky.app-jetified-activity-ktx-1.9.1-70 D:\gradle-home\caches\transforms-4\f21d2cb4cb7b3d59d9e8e907171e2877\transformed\jetified-activity-ktx-1.9.1\res
+com.eye.sky.app-jetified-ui-tooling-preview-release-71 D:\gradle-home\caches\transforms-4\f28ed4f69b9ad5f69612307303423b17\transformed\jetified-ui-tooling-preview-release\res
+com.eye.sky.app-jetified-media3-exoplayer-1.3.1-72 D:\gradle-home\caches\transforms-4\f4deecac9fc40605bec8a6bf078a88f4\transformed\jetified-media3-exoplayer-1.3.1\res
+com.eye.sky.app-navigation-common-2.7.7-73 D:\gradle-home\caches\transforms-4\fc036a1ee7decec15ab15de2c80f03fd\transformed\navigation-common-2.7.7\res
+com.eye.sky.app-jetified-ui-text-release-74 D:\gradle-home\caches\transforms-4\fc52f568373fa79c77dd848d2c136f4a\transformed\jetified-ui-text-release\res
