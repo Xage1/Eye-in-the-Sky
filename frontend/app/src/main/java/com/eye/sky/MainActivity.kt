@@ -22,8 +22,8 @@ class MainActivity : ComponentActivity() {
         //init SoundManager
         com.eye.sky.audio.SoundManager.init(this)
         //Preload short SFX
-        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.ui.galaxy_tap)
-        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.ui.meteor_swipe)
+        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.galaxy_tap)
+        com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.meteor_swipe)
         com.eye.sky.audio.SoundManager.loadSfx(this, R.raw.planet_alignment)
 
         val launcher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {}

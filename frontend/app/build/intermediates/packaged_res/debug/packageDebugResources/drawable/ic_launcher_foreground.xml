@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#0D0D1A"
+        android:pathData="M0,0 L108,0 L108,108 L0,108 Z" />
+
+    <!-- Eye shape — outer -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#7F77DD"
+        android:strokeWidth="3"
+        android:pathData="M20,54 Q54,20 88,54 Q54,88 20,54 Z" />
+
+    <!-- Pupil — star burst -->
+    <path
+        android:fillColor="#7F77DD"
+        android:pathData="M54,42 L56,50 L64,54 L56,58 L54,66 L52,58 L44,54 L52,50 Z" />
+
+    <!-- Small stars around -->
+    <path android:fillColor="#EF9F27" android:pathData="M28,30 L29,33 L32,34 L29,35 L28,38 L27,35 L24,34 L27,33 Z" />
+    <path android:fillColor="#1D9E75" android:pathData="M76,24 L77,26 L79,27 L77,28 L76,30 L75,28 L73,27 L75,26 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M84,70 L85,72 L87,73 L85,74 L84,76 L83,74 L81,73 L83,72 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,72 L23,74 L25,75 L23,76 L22,78 L21,76 L19,75 L21,74 Z" />
+
+</vector>

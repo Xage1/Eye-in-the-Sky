@@ -1,6 +1,6 @@
 package com.eye.sky.ui.components
 
-import androidx.compsoe.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.airbnb.lottie.compose.*
 import com.eye.sky.audio.SoundManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.animation.ExperimentalAnimationApi
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -43,4 +44,5 @@ fun NebulaTransition(
                 }
         }
     }
+}
 }

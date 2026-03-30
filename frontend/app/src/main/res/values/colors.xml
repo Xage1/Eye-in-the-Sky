@@ -1,11 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="md_theme_primary">#6750A4</color>
-    <color name="md_theme_primary_container">#EADDFF</color>
-    <color name="md_theme_onPrimary">#FFFFFF</color>
 
-    <color name="md_theme_secondary">#625B71</color>
-    <color name="md_theme_secondary_container">#E8DEF8</color>
-    <color name="md_theme_onSecondary">#FFFFFF</color>
+    <!-- ── Core palette ───────────────────────────────────────────────────── -->
 
-    <color name="md_theme_background">#FFFFFF</color>
+    <!-- Deep space navy — primary background -->
+    <color name="deep_space">#FF0D0D1A</color>
+    <color name="deep_space_night">#FF08080F</color>
+
+    <!-- Cosmic violet — primary brand colour -->
+    <color name="cosmic_violet">#FF7F77DD</color>
+    <color name="cosmic_violet_container">#FF2A2460</color>
+    <color name="cosmic_violet_on_container">#FFCECBF6</color>
+    <color name="cosmic_violet_night">#FFAFA9EC</color>
+    <color name="cosmic_violet_container_night">#FF3C3489</color>
+
+    <!-- Nebula teal — secondary accent -->
+    <color name="nebula_teal">#FF1D9E75</color>
+    <color name="nebula_teal_container">#FF063D2D</color>
+    <color name="nebula_teal_on_container">#FF9FE1CB</color>
+    <color name="nebula_teal_night">#FF5DCAA5</color>
+    <color name="nebula_teal_container_night">#FF085041</color>
+
+    <!-- Solar amber — alerts, events, highlights -->
+    <color name="solar_amber">#FFEF9F27</color>
+    <color name="solar_amber_container">#FF3D2800</color>
+    <color name="solar_amber_on_container">#FFFAC775</color>
+    <color name="solar_amber_night">#FFBA7517</color>
+    <color name="solar_amber_container_night">#FF633806</color>
+
+    <!-- Supernova red — errors, danger -->
+    <color name="supernova_red">#FFE24B4A</color>
+
+    <!-- Surface colours -->
+    <color name="surface">#FF1A1A2E</color>
+    <color name="surface_variant">#FF16213E</color>
+    <color name="surface_night">#FF0F0F1A</color>
+    <color name="surface_variant_night">#FF0D1020</color>
+
+    <!-- Text colours -->
+    <color name="star_white">#FFF0F0F5</color>
+    <color name="nebula_grey">#FF9090A0</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+
+    <!-- ── Night mode AR overlay ───────────────────────────────────────────── -->
+    <!-- Used during actual stargazing — deep red to preserve night vision    -->
+    <color name="night_vision_bg">#FF1A0000</color>
+    <color name="night_vision_primary">#FFB00000</color>
+    <color name="night_vision_text">#FFFF4444</color>
+
+    <!-- ── AR canvas colours ─────────────────────────────────────────────── -->
+    <color name="ar_star_default">#FFFFFFFF</color>
+    <color name="ar_star_highlighted">#FFEF9F27</color>
+    <color name="ar_constellation_line">#884444FF</color>
+    <color name="ar_planet_marker">#FFFF6B35</color>
+    <color name="ar_satellite_marker">#FF00FF88</color>
+    <color name="ar_iss_marker">#FFFF3333</color>
+    <color name="ar_label_bg">#99000000</color>
+
 </resources>
