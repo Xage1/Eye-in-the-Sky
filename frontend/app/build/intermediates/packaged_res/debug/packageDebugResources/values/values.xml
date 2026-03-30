@@ -1,35 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:ns1="http://schemas.android.com/tools">
-    <color name="background">#FFFFFF</color>
-    <color name="backgroundDark">#121212</color>
-    <color name="onBackground">#000000</color>
-    <color name="onBackgroundDark">#FFFFFF</color>
-    <color name="onPrimary">#FFFFFF</color>
-    <color name="onPrimaryDark">#000000</color>
-    <color name="onSecondary">#000000</color>
-    <color name="onSecondaryDark">#000000</color>
-    <color name="onSurface">#000000</color>
-    <color name="onSurfaceDark">#FFFFFF</color>
-    <color name="primary">#6200EE</color>
-    <color name="primaryDark">#BB86FC</color>
-    <color name="secondary">#03DAC6</color>
-    <color name="secondaryDark">#03DAC6</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="surfaceDark">#121212</color>
+<resources>
+    <color name="ar_constellation_line">#884444FF</color>
+    <color name="ar_iss_marker">#FFFF3333</color>
+    <color name="ar_label_bg">#99000000</color>
+    <color name="ar_planet_marker">#FFFF6B35</color>
+    <color name="ar_satellite_marker">#FF00FF88</color>
+    <color name="ar_star_default">#FFFFFFFF</color>
+    <color name="ar_star_highlighted">#FFEF9F27</color>
+    <color name="black">#FF000000</color>
+    <color name="cosmic_violet">#FF7F77DD</color>
+    <color name="cosmic_violet_container">#FF2A2460</color>
+    <color name="cosmic_violet_container_night">#FF3C3489</color>
+    <color name="cosmic_violet_night">#FFAFA9EC</color>
+    <color name="cosmic_violet_on_container">#FFCECBF6</color>
+    <color name="deep_space">#FF0D0D1A</color>
+    <color name="deep_space_night">#FF08080F</color>
+    <color name="nebula_grey">#FF9090A0</color>
+    <color name="nebula_teal">#FF1D9E75</color>
+    <color name="nebula_teal_container">#FF063D2D</color>
+    <color name="nebula_teal_container_night">#FF085041</color>
+    <color name="nebula_teal_night">#FF5DCAA5</color>
+    <color name="nebula_teal_on_container">#FF9FE1CB</color>
+    <color name="night_vision_bg">#FF1A0000</color>
+    <color name="night_vision_primary">#FFB00000</color>
+    <color name="night_vision_text">#FFFF4444</color>
+    <color name="solar_amber">#FFEF9F27</color>
+    <color name="solar_amber_container">#FF3D2800</color>
+    <color name="solar_amber_container_night">#FF633806</color>
+    <color name="solar_amber_night">#FFBA7517</color>
+    <color name="solar_amber_on_container">#FFFAC775</color>
+    <color name="star_white">#FFF0F0F5</color>
+    <color name="supernova_red">#FFE24B4A</color>
+    <color name="surface">#FF1A1A2E</color>
+    <color name="surface_night">#FF0F0F1A</color>
+    <color name="surface_variant">#FF16213E</color>
+    <color name="surface_variant_night">#FF0D1020</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Eye in the Sky</string>
+    <string name="app_tagline">Your window to the universe</string>
+    <string name="ar_mag_limit">Magnitude limit</string>
+    <string name="ar_night_mode">Night mode</string>
+    <string name="ar_permission_camera">Camera permission required for AR star map</string>
+    <string name="ar_permission_location">Location permission required to show your sky</string>
+    <string name="ar_searching">Searching the sky…</string>
+    <string name="ar_tap_to_learn">Tap a star to learn more</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="email_hint">Email address</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="loading">Loading…</string>
+    <string name="login">Log in</string>
+    <string name="logout">Log out</string>
+    <string name="name_hint">Your name</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_learn">Learn</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_satellites">Satellites</string>
+    <string name="nav_sky_map">Sky Map</string>
+    <string name="password_hint">Password</string>
+    <string name="payment_card">Pay with Card</string>
+    <string name="payment_mpesa">Pay with M-Pesa</string>
+    <string name="per_month">/ month</string>
+    <string name="per_year">/ year</string>
+    <string name="permission_camera_rationale">Eye in the Sky needs your camera to overlay stars on the real sky using augmented reality.</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="permission_grant">Grant permission</string>
+    <string name="permission_location_rationale">Eye in the Sky needs your location to calculate which stars are visible from where you are.</string>
+    <string name="plan_free">Free</string>
+    <string name="plan_premium">Premium</string>
+    <string name="plan_pro">Pro</string>
+    <string name="retry">Retry</string>
+    <string name="save">Save</string>
+    <string name="signup">Sign up</string>
+    <string name="upgrade_to_premium">Upgrade to Premium</string>
+    <string name="upgrade_to_pro">Upgrade to Pro</string>
     <style name="Theme.EyeInTheSky" parent="Theme.Material3.DayNight.NoActionBar">
-        
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_primary_container</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorSecondaryContainer">@color/md_theme_secondary_container</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-
-        <item name="android:statusBarColor" ns1:targetApi="l">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-
-        <item name="android:windowSplashScreenBackground">@color/md_theme_primary</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="colorPrimary">@color/cosmic_violet</item>
+        <item name="colorSecondary">@color/nebula_teal</item>
+        <item name="colorTertiary">@color/solar_amber</item>
+        <item name="android:statusBarColor">@color/deep_space</item>
+        <item name="android:navigationBarColor">@color/deep_space</item>
+        <item name="android:windowBackground">@color/deep_space</item>
     </style>
 </resources>

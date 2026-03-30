@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.EyeInTheSky" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_primary_container</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorSecondaryContainer">@color/md_theme_secondary_container</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-
-        <item name="android:statusBarColor">@color/md_theme_primary</item>
-        <item name="android:navigationBarColor">@color/md_theme_primary</item>
+        <item name="colorPrimary">@color/cosmic_violet</item>
+        <item name="colorSecondary">@color/nebula_teal</item>
+        <item name="colorTertiary">@color/solar_amber</item>
+        <item name="android:statusBarColor">@color/deep_space</item>
+        <item name="android:navigationBarColor">@color/deep_space</item>
+        <item name="android:windowBackground">@color/deep_space</item>
     </style>
 </resources>

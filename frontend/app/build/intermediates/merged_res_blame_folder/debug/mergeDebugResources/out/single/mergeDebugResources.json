@@ -1,5 +1,13 @@
 [
     {
+        "merged": "com.eye.sky.app-debug-4:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.eye.sky.app-main-6:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.eye.sky.app-debug-4:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.eye.sky.app-main-6:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
         "merged": "com.eye.sky.app-debug-4:/raw_ui_galaxy_tap.wav.flat",
         "source": "com.eye.sky.app-main-6:/raw/ui_galaxy_tap.wav"
     },
@@ -16,11 +24,19 @@
         "source": "com.eye.sky.app-main-6:/raw/blackhole_loader.wav"
     },
     {
+        "merged": "com.eye.sky.app-debug-4:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.eye.sky.app-main-6:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
         "merged": "com.eye.sky.app-debug-4:/raw_nebula_pad.wav.flat",
         "source": "com.eye.sky.app-main-6:/raw/nebula_pad.wav"
     },
     {
         "merged": "com.eye.sky.app-debug-4:/raw_eclipse_toggle.wav.flat",
         "source": "com.eye.sky.app-main-6:/raw/eclipse_toggle.wav"
+    },
+    {
+        "merged": "com.eye.sky.app-debug-4:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.eye.sky.app-main-6:/drawable/ic_launcher_foreground.xml"
     }
 ]

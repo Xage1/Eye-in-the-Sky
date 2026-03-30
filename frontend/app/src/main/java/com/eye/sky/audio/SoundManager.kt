@@ -1,12 +1,13 @@
-package.com.eye.sky.audio
+package com.eye.sky.audio
 
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.annotation.RawRes
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
+
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 
 
 /**
@@ -59,9 +60,9 @@ object SoundManager {
     fun playAmbient(context: Context, @RawRes resId: Int, loop: Boolean = true, volume: Float = 0.45f) {
         releaseAmbient()
         val ctx = context.applicationContext
-        val player = Exoplayer.Builder(ctx).build().apply {
+        val player = ExoPlayer.Builder(ctx).build().apply {
             repeatMode = if (loop) Player.REPEAT_MODE_ALL else Player.REPEAT_MODE_OFF
-            volume = volume
+            setVolume(volume)
             setMediaItem(MediaItem.fromUri("rawresource://${ctx.packageName}/$resId"))
             prepare()
             playWhenReady = true
