@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="http://schemas.android.com/tools">
+    <color name="background">#FFFFFF</color>
+    <color name="backgroundDark">#121212</color>
+    <color name="onBackground">#000000</color>
+    <color name="onBackgroundDark">#FFFFFF</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="onPrimaryDark">#000000</color>
+    <color name="onSecondary">#000000</color>
+    <color name="onSecondaryDark">#000000</color>
+    <color name="onSurface">#000000</color>
+    <color name="onSurfaceDark">#FFFFFF</color>
+    <color name="primary">#6200EE</color>
+    <color name="primaryDark">#BB86FC</color>
+    <color name="secondary">#03DAC6</color>
+    <color name="secondaryDark">#03DAC6</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surfaceDark">#121212</color>
+    <style name="Theme.EyeInTheSky" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primary_container</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondary_container</item>
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
+
+        <item name="android:statusBarColor" ns1:targetApi="l">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <item name="android:windowSplashScreenBackground">@color/md_theme_primary</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+</resources>

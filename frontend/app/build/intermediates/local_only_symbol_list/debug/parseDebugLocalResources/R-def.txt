@@ -1,8 +1,25 @@
 R_DEF: Internal format may change without notice
 local
+color background
+color backgroundDark
+color onBackground
+color onBackgroundDark
+color onPrimary
+color onPrimaryDark
+color onSecondary
+color onSecondaryDark
+color onSurface
+color onSurfaceDark
+color primary
+color primaryDark
+color secondary
+color secondaryDark
+color surface
+color surfaceDark
 raw blackhole_loader
 raw eclipse_toggle
 raw meteor_swipe
 raw nebula_pad
 raw planet_alignment
 raw ui_galaxy_tap
+style Theme.EyeInTheSky
