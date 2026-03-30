@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-19:12
-INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-19:12
-INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-19:12
-INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-19:12
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-27:12
+INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-27:12
+INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-27:12
+INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:1-27:12
 MERGED from [io.coil-kt:coil-compose:2.6.0] D:\gradle-home\caches\transforms-4\135ccc9a207d45ee81ee8017e62608e5\transformed\jetified-coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
 MERGED from [io.coil-kt:coil-compose-base:2.6.0] D:\gradle-home\caches\transforms-4\d85e5b1101119eebcbc3c632d48f80eb\transformed\jetified-coil-compose-base-2.6.0\AndroidManifest.xml:2:1-7:12
 MERGED from [io.coil-kt:coil:2.6.0] D:\gradle-home\caches\transforms-4\597efeda750ff6983dee1a4dafac5b2b\transformed\jetified-coil-2.6.0\AndroidManifest.xml:2:1-7:12
@@ -100,33 +100,32 @@ MERGED from [androidx.arch.core:core-runtime:2.2.0] D:\gradle-home\caches\transf
 MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] D:\gradle-home\caches\transforms-4\60373e3c3f001b44ab75aaa8e2bcea62\transformed\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.exifinterface:exifinterface:1.3.7] D:\gradle-home\caches\transforms-4\f766f3e781cd85e04214a26a0ba3cab7\transformed\exifinterface-1.3.7\AndroidManifest.xml:17:1-24:12
 	package
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:11-32
 		INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml
 	android:versionName
 		INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml
 	android:versionCode
 		INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:33-91
-uses-feature#android.hardware.camera.any
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:2:5-64
-	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:2:19-61
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:1:11-69
 uses-permission#android.permission.CAMERA
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:3:5-65
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:4:5-65
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:3:22-62
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:4:22-62
 uses-permission#android.permission.ACCESS_FINE_LOCATION
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:4:5-79
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:5:5-79
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:4:22-76
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:5:22-76
 uses-permission#android.permission.ACCESS_COARSE_LOCATION
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:5:5-81
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:6:5-81
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:5:22-78
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:6:22-78
+uses-feature#android.hardware.camera.any
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:7:5-64
+	android:name
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:7:19-61
 application
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:7:5-18:19
-INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:7:5-18:19
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:9:5-26:19
+INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:9:5-26:19
 MERGED from [androidx.camera:camera-camera2:1.3.4] D:\gradle-home\caches\transforms-4\de2c8e32491cb1606455f597b7f16cd2\transformed\jetified-camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
 MERGED from [androidx.camera:camera-camera2:1.3.4] D:\gradle-home\caches\transforms-4\de2c8e32491cb1606455f597b7f16cd2\transformed\jetified-camera-camera2-1.3.4\AndroidManifest.xml:23:5-34:19
 MERGED from [androidx.camera:camera-core:1.3.4] D:\gradle-home\caches\transforms-4\91820a2ca9702bee268f908714611f1c\transformed\jetified-camera-core-1.3.4\AndroidManifest.xml:23:5-34:19
@@ -160,27 +159,33 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] D:\gradle-home\caches\trans
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.13.1] D:\gradle-home\caches\transforms-4\f0092f1b5d10332cdd0c672f80053293\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:8:9-39
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:11:9-39
+	android:roundIcon
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:14:9-54
+	android:icon
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:13:9-43
 	android:allowBackup
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:9:9-35
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:12:9-35
 	android:theme
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:10:9-68
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:15:9-49
+	android:name
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:10:9-28
 activity#com.eye.sky.MainActivity
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:11:9-17:20
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:17:9-24:20
 	android:exported
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:12:13-36
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:19:13-36
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:11:19-47
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:18:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:13:13-16:29
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:20:13-23:29
 action#android.intent.action.MAIN
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:14:17-68
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:21:17-69
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:14:25-66
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:21:25-66
 category#android.intent.category.LAUNCHER
-ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:15:17-76
+ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:22:17-77
 	android:name
-		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:15:27-74
+		ADDED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml:22:27-74
 uses-sdk
 INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from D:\DEV OPS\Eye-in-the-Sky\frontend\app\src\main\AndroidManifest.xml
