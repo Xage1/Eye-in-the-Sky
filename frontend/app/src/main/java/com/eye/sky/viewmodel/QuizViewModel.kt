@@ -2,16 +2,18 @@ package com.eye.sky.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.eye.sky.net.*
+import com.eye.sky.net.QuizAnswerIn
+import com.eye.sky.net.QuizQuestionDto
+import com.eye.sky.net.QuizSubmissionCreate
+import com.eye.sky.net.QuizSubmissionOut
 import com.eye.sky.repo.QuizRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
 class QuizViewModel(
-    private val repo: QuizRepository = QuizRepository()
+    private val repo: QuizRepository = QuizRepository(),
 ) : ViewModel() {
 
     val topics = listOf("All", "Planets", "Cosmology", "Exoplanets", "Stars", "Events")
@@ -31,9 +33,9 @@ class QuizViewModel(
     private var timerRunning = false
 
     private val durations = mapOf(
-        "Simple" to 120L,
-        "Medium" to 180L,
-        "Difficult" to 300L
+        "simple"   to 120L,
+        "medium"   to 180L,
+        "difficult" to 300L,
     )
 
     fun loadQuestions(difficulty: String, topic: String?) {
@@ -42,8 +44,7 @@ class QuizViewModel(
             _questions.value = list
             _answers.value = mutableMapOf()
             _submission.value = null
-
-            _timeleft.value = durations[difficulty] ?: 120L
+            _timeleft.value = durations[difficulty.lowercase()] ?: 120L
             startTimer()
         }
     }
@@ -62,17 +63,22 @@ class QuizViewModel(
     }
 
     fun setAnswer(qid: Int, ans: String) {
-        val map = _answers.value.toMutableMap()
-        map[qid] = ans
-        _answers.value = map
+        _answers.value = _answers.value.toMutableMap().apply { put(qid, ans) }
     }
 
     fun submitQuiz() {
         viewModelScope.launch {
             val payload = QuizSubmissionCreate(
-                answers = _answers.value.map { QuizAnswerIn(it.key, it.value) }
+                answers = _answers.value.map { (qid, selected) ->
+                    // correct_answer sent as empty string — backend scores server-side
+                    QuizAnswerIn(
+                        question_id = qid,
+                        selected_answer = selected,
+                        correct_answer = "",
+                    )
+                }
             )
-            _submission.value = repo.submit(payload)
+            _submission.value = runCatching { repo.submit(payload) }.getOrNull()
         }
     }
 }
