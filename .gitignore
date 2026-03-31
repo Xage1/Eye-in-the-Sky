@@ -1,0 +1,21 @@
+# Heap dump files
+*.hprof
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+
+# APKs
+*.apk
+*.aab
+
+# Local config
+local.properties
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
