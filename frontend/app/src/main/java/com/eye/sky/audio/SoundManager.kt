@@ -4,30 +4,26 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.annotation.RawRes
-
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 
-
 /**
- * SoundManager: SoundPool for short SFX, ExoPlayer for long/ambient loop.
+ * SoundManager — SoundPool for short SFX, Media3 ExoPlayer for ambient loops.
  *
  * Usage:
- *  - SoundManager.init(context)
- *  - SoundManager.loadSfx(R.raw.meteor_swipe)
- *  - SoundManager.playSfx(R.raw.meteor_swipe)
- *  - SoundManager.playAmbient(R.raw.nebula_pad) // loops by default
- *  - SoundManager.stopAmbient()
- *  - SoundManager.release()
+ *  SoundManager.init(context)
+ *  SoundManager.loadSfx(context, R.raw.meteor_swipe)
+ *  SoundManager.playSfx(R.raw.meteor_swipe)
+ *  SoundManager.playAmbient(context, R.raw.nebula_pad)
+ *  SoundManager.stopAmbient()
+ *  SoundManager.release()
  */
-
 object SoundManager {
     private var soundPool: SoundPool? = null
-    private val soundMap = HashMap<Int, Int>() // resId -> sound
+    private val soundMap = HashMap<Int, Int>()  // resId -> soundPool sound id
     private var exoPlayer: ExoPlayer? = null
     private var appContext: Context? = null
-
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -43,11 +39,10 @@ object SoundManager {
 
     fun loadSfx(context: Context, @RawRes resId: Int) {
         val sp = soundPool ?: return
-        if (soundMap.containsKey(resId)) return // already loaded
+        if (soundMap.containsKey(resId)) return
         val sid = sp.load(context, resId, 1)
         soundMap[resId] = sid
     }
-
 
     fun playSfx(@RawRes resId: Int, volume: Float = 1.0f) {
         val sp = soundPool ?: return
@@ -55,15 +50,14 @@ object SoundManager {
         sp.play(sid, volume, volume, 1, 0, 1f)
     }
 
-
-    // Ambient: Exoplayer
     fun playAmbient(context: Context, @RawRes resId: Int, loop: Boolean = true, volume: Float = 0.45f) {
         releaseAmbient()
         val ctx = context.applicationContext
+        val uri = android.net.Uri.parse("android.resource://${ctx.packageName}/$resId")
         val player = ExoPlayer.Builder(ctx).build().apply {
             repeatMode = if (loop) Player.REPEAT_MODE_ALL else Player.REPEAT_MODE_OFF
-            setVolume(volume)
-            setMediaItem(MediaItem.fromUri("rawresource://${ctx.packageName}/$resId"))
+            this.volume = volume
+            setMediaItem(MediaItem.fromUri(uri))
             prepare()
             playWhenReady = true
         }
@@ -89,5 +83,4 @@ object SoundManager {
         soundMap.clear()
         releaseAmbient()
     }
-
 }
