@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.eye.sky"
+    namespace = ("com.eye.sky")
     compileSdk = 34
 
     defaultConfig {

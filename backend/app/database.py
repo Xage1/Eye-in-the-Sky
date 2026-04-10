@@ -22,4 +22,4 @@ SessionLocal = sessionmaker(
 )
 
 # ✅ Declare base class for models
-Base = declarative_base()
+Base = declarative_base() 
