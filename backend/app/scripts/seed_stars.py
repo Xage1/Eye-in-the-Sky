@@ -2,10 +2,10 @@ import asyncio
 import json
 from pathlib import Path
 
-from sqlalchemy.ext.asyncio import AsyncSessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.db.base import AsyncSessionLocal
+from app.db.database import AsyncSessionLocal
 from app.models.star import Star
 
 BASE_DIR = Path(__file__).resolve().parents[1]
