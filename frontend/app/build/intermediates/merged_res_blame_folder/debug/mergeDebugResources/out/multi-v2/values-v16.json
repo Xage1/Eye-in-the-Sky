@@ -4,7 +4,7 @@
             "outputFile": "com.eye.sky.app-mergeDebugResources-2:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "D:\\gradle-home\\caches\\transforms-4\\b27725821584d208d50eda84996d4896\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "source": "F:\\gradle-home\\caches\\transforms-4\\b27725821584d208d50eda84996d4896\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
