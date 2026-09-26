@@ -30,6 +30,10 @@ from app.models.quiz_answer import QuizAnswer
 from app.models.quiz_submission import QuizSubmission
 from app.models.lesson import Lesson
 from app.models.star_watchlist import StarWatchlist
+from app.models.star import Star
+from app.models.quote import AstronomerQuote
+from app.models.solar_event import SolarEvent
+from app.models.subscription import UserSubscription, Transaction
 
 # Metadata for autogenerate support
 target_metadata = Base.metadata

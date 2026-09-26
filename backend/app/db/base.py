@@ -1,4 +1,6 @@
-from sqlalchemy.orm import DeclarativeBase
+"""
+Legacy database module.
 
-class Base(DeclarativeBase):
-    pass
+SQLAlchemy engine, session factory, and Base are defined
+in app.database.
+"""

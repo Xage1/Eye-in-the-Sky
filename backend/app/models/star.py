@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Index
-from app.db.base import Base
+from app.database import Base
 
 
 class Star(Base):
