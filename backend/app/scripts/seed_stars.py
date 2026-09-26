@@ -34,7 +34,7 @@ async def seed_stars():
                 or star["identifiers"]["bayer_designation"]
                 or f"HR {catalog_id}",
                 bayer_designation=star["identifiers"]["bayer_designation"],
-                constellation=star["constellation"]["name"],
+                constellation=star["constellation"]["name"] or "Unassigned",
                 iau_abbreviation=star["constellation"]["iau_abbreviation"],
                 ra=star["coordinates"]["ra"],
                 dec=star["coordinates"]["dec"],
