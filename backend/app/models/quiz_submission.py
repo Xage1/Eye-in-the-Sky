@@ -14,3 +14,4 @@ class QuizSubmission(Base):
     total_questions = Column(Integer, nullable=False)
 
     answers = relationship("QuizAnswer", back_populates="submission")
+    user = relationship("User", back_populates="quiz_submissions")
