@@ -1,28 +1,22 @@
-
-    {
-        "rigel": {
-            "common_name": "Rigel",
-            "bayer_designation": "β Ori",
-            "constellation": { "name": "Orion", "iau": "Ori" }
-        },
-        "betelgeuse": {
-            "common_name": "Betelegeuse",
-            "bayer_designation": "α Ori",
-            "constellation": { "name": "Orion", "iau": "Ori"}
-        },
-        "aldebaran": {
-            "common_name": "Aldebaran",
-            "bayer_designation": "α Tau",
-            "constellation": {"name": "Taurus" , "iau": "Tau"}
-        },
-        "sirius": {
-            "common_name": "Sirius",
-            "bayer_designation": "α CMa",
-            "constellation": {"name": "Canis Major", "iau": "CMa"}
-        },
-        "vega": {
-            "common_name": "Vega",
-            "bayer_designation": "α Lyr",
-            "constellation": { "name": "Lyra", "iau": "Lyr" }
-        }
+{
+    "1457": {
+        "common_name": "Aldebaran",
+        "bayer_designation": "α Tau"
+    },
+    "1713": {
+        "common_name": "Rigel",
+        "bayer_designation": "β Ori"
+    },
+    "2061": {
+        "common_name": "Betelgeuse",
+        "bayer_designation": "α Ori"
+    },
+    "2491": {
+        "common_name": "Sirius",
+        "bayer_designation": "α CMa"
+    },
+    "7001": {
+        "common_name": "Vega",
+        "bayer_designation": "α Lyr"
     }
+}
