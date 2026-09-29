@@ -4,28 +4,54 @@ app/services/satellite_service.py
 Fetches TLE data from Celestrak and computes which satellites are currently
 visible above the observer's horizon using sgp4 + astropy.
 
+Notes on correctness and performance (fixed after profiling):
+
+- SGP4 output is in the TEME frame (True Equator, Mean Equinox), not ITRS.
+  It must be converted TEME -> ITRS -> AltAz. Treating raw SGP4 output as
+  ITRS directly produces errors of tens of degrees in altitude/azimuth.
+
+- IERS auto-download is disabled. Sub-arcsecond Earth-orientation precision
+  is not needed for naked-eye satellite visibility, and depending on an
+  external IERS server at request time adds latency and a failure mode.
+
+- All satellites are propagated and transformed in a single batched call
+  (SatrecArray + one astropy transform) rather than one at a time. A single
+  coordinate transform has several seconds of fixed one-time setup cost per
+  process, but transforming thousands of points in one call afterward costs
+  well under a second. Looping per-satellite pays that fixed cost every time.
 """
 
 import time
 from datetime import datetime
 
 import httpx
-from sgp4.api import Satrec, jday
-from astropy.coordinates import EarthLocation, ITRS, AltAz
+import numpy as np
+from sgp4.api import Satrec, SatrecArray, jday
+from astropy.coordinates import EarthLocation, ITRS, TEME, AltAz
 from astropy.time import Time
 import astropy.units as u
+import astropy.utils.iers as iers
+
+# Do not depend on reaching IERS servers at request time. The bundled offline
+# table is more than accurate enough for this use case.
+iers.conf.auto_download = False
+iers.conf.auto_max_age = None
 
 CELESTRAK_URL = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
 
 _CACHE: dict = {"timestamp": 0, "data": []}
-_CACHE_TTL = 3600  # seconds — refresh TLE data every hour
+# Celestrak only refreshes the "active" group every 2 hours and returns 403
+# if you re-request sooner. Cache TTL must be at or above that, or every
+# request in the gap re-hits Celestrak, gets rejected, and falls back anyway.
+_CACHE_TTL = 7200  # seconds
 
 
 def fetch_tle_data() -> list[dict]:
     """
     Download and cache TLE data from Celestrak.
     Returns a list of dicts with keys: name, tle1, tle2.
-    Uses a 1-hour in-memory cache to avoid hammering Celestrak.
+    Cache TTL matches Celestrak's real update cadence to avoid
+    guaranteed-failing refetches between updates.
     """
     now = time.time()
     if now - _CACHE["timestamp"] < _CACHE_TTL and _CACHE["data"]:
@@ -64,7 +90,8 @@ def get_visible_satellites(
     limit: int = 10,
 ) -> list[dict]:
     """
-    Return satellites currently visible above the observer's horizon.
+    Return satellites currently visible above the observer's horizon,
+    sorted by altitude (highest / most overhead first).
 
     Parameters
     ----------
@@ -86,38 +113,57 @@ def get_visible_satellites(
     )
 
     tle_data = fetch_tle_data()
+    if not tle_data:
+        return []
+
+    sat_objs = []
+    valid_tle = []
+    for t in tle_data:
+        try:
+            sat_objs.append(Satrec.twoline2rv(t["tle1"], t["tle2"]))
+            valid_tle.append(t)
+        except Exception:
+            continue
+
+    if not sat_objs:
+        return []
+
+    sat_array = SatrecArray(sat_objs)
+    jd_arr = np.array([jd])
+    fr_arr = np.array([fr])
+    e_arr, r_arr, _ = sat_array.sgp4(jd_arr, fr_arr)
+
+    e_flat = e_arr[:, 0]
+    ok_mask = e_flat == 0
+
+    x = r_arr[:, 0, 0]
+    y = r_arr[:, 0, 1]
+    z = r_arr[:, 0, 2]
+
     observer = EarthLocation(lat=lat * u.deg, lon=lon * u.deg, height=alt_m * u.m)
     time_astropy = Time(when)
     altaz_frame = AltAz(obstime=time_astropy, location=observer)
 
-    visible = []
+    teme = TEME(
+        x=x * u.km, y=y * u.km, z=z * u.km,
+        representation_type="cartesian",
+        obstime=time_astropy,
+    )
+    altaz = teme.transform_to(ITRS(obstime=time_astropy)).transform_to(altaz_frame)
 
-    for t in tle_data:
-        try:
-            sat = Satrec.twoline2rv(t["tle1"], t["tle2"])
-            e, r, _ = sat.sgp4(jd, fr)
-            if e != 0:
-                continue
+    alt_deg = altaz.alt.deg
+    az_deg = altaz.az.deg
 
-            sat_itrs = ITRS(
-                x=r[0] * u.km,
-                y=r[1] * u.km,
-                z=r[2] * u.km,
-                obstime=time_astropy,
-            )
-            sat_altaz = sat_itrs.transform_to(altaz_frame)
-
-            if sat_altaz.alt.deg > 0:
-                visible.append({
-                    "name":         t["name"],
-                    "altitude_deg": round(float(sat_altaz.alt.deg), 2),
-                    "azimuth_deg":  round(float(sat_altaz.az.deg), 2),
-                })
-
-            if len(visible) >= limit:
-                break
-
-        except Exception:
+    results = []
+    for i, t in enumerate(valid_tle):
+        if not ok_mask[i]:
             continue
+        if alt_deg[i] > 0:
+            results.append({
+                "name": t["name"],
+                "altitude_deg": round(float(alt_deg[i]), 2),
+                "azimuth_deg": round(float(az_deg[i]), 2),
+            })
 
-    return visible
+    results.sort(key=lambda s: s["altitude_deg"], reverse=True)
+    return results[:limit]
