@@ -1,8 +1,12 @@
 """
 app/services/satellite_service.py
 
-Fetches TLE data from Celestrak and computes which satellites are currently
-visible above the observer's horizon using sgp4 + astropy.
+Computes which satellites are currently visible above the observer's
+horizon using sgp4 + astropy. TLE data is read from Redis, where
+app.tasks.tle_tasks.fetch_and_store_tle keeps it refreshed every 6
+hours. If Redis has no data yet (fresh environment, Beat hasn't run),
+this falls back to a live Celestrak fetch and writes the result into
+Redis itself, so the feature works even before the first scheduled run.
 
 Notes on correctness and performance (fixed after profiling):
 
@@ -19,8 +23,13 @@ Notes on correctness and performance (fixed after profiling):
   coordinate transform has several seconds of fixed one-time setup cost per
   process, but transforming thousands of points in one call afterward costs
   well under a second. Looping per-satellite pays that fixed cost every time.
+
+- TLE data lives in Redis (shared with the Celery worker) rather than an
+  in-process dict, so it survives API restarts and both processes agree
+  on the same data.
 """
 
+import json
 import time
 from datetime import datetime
 
@@ -32,6 +41,8 @@ from astropy.time import Time
 import astropy.units as u
 import astropy.utils.iers as iers
 
+from app.utils.redis_client import get_redis_client
+
 # Do not depend on reaching IERS servers at request time. The bundled offline
 # table is more than accurate enough for this use case.
 iers.conf.auto_download = False
@@ -39,46 +50,55 @@ iers.conf.auto_max_age = None
 
 CELESTRAK_URL = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
 
-_CACHE: dict = {"timestamp": 0, "data": []}
-# Celestrak only refreshes the "active" group every 2 hours and returns 403
-# if you re-request sooner. Cache TTL must be at or above that, or every
-# request in the gap re-hits Celestrak, gets rejected, and falls back anyway.
-_CACHE_TTL = 7200  # seconds
+TLE_CACHE_KEY = "satellites:tle_cache"
+TLE_CACHE_UPDATED_KEY = "satellites:tle_cache_updated_at"
+TLE_CACHE_TTL_SECONDS = 24 * 3600
+
+
+def _parse_tle_text(text: str) -> list[dict]:
+    lines = text.strip().splitlines()
+    sats = []
+    for i in range(0, len(lines) - 2, 3):
+        name = lines[i].strip()
+        tle1 = lines[i + 1].strip()
+        tle2 = lines[i + 2].strip()
+        if tle1.startswith("1 ") and tle2.startswith("2 "):
+            sats.append({"name": name, "tle1": tle1, "tle2": tle2})
+    return sats
 
 
 def fetch_tle_data() -> list[dict]:
     """
-    Download and cache TLE data from Celestrak.
-    Returns a list of dicts with keys: name, tle1, tle2.
-    Cache TTL matches Celestrak's real update cadence to avoid
-    guaranteed-failing refetches between updates.
+    Return TLE data, preferring the Redis cache that the Celery task
+    keeps refreshed. Falls back to a live Celestrak fetch (and writes
+    the result into Redis) if Redis has nothing yet.
     """
-    now = time.time()
-    if now - _CACHE["timestamp"] < _CACHE_TTL and _CACHE["data"]:
-        return _CACHE["data"]
+    r = get_redis_client()
+
+    try:
+        cached = r.get(TLE_CACHE_KEY)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        # Redis unreachable: fall through to a live fetch rather than fail outright.
+        pass
 
     try:
         with httpx.Client(timeout=20) as client:
-            r = client.get(CELESTRAK_URL)
-            r.raise_for_status()
-            lines = r.text.strip().splitlines()
+            resp = client.get(CELESTRAK_URL)
+            resp.raise_for_status()
+            sats = _parse_tle_text(resp.text)
 
-        sats = []
-        for i in range(0, len(lines) - 2, 3):
-            name = lines[i].strip()
-            tle1 = lines[i + 1].strip()
-            tle2 = lines[i + 2].strip()
-            if tle1.startswith("1 ") and tle2.startswith("2 "):
-                sats.append({"name": name, "tle1": tle1, "tle2": tle2})
+        if sats:
+            try:
+                r.set(TLE_CACHE_KEY, json.dumps(sats), ex=TLE_CACHE_TTL_SECONDS)
+                r.set(TLE_CACHE_UPDATED_KEY, str(time.time()), ex=TLE_CACHE_TTL_SECONDS)
+            except Exception:
+                pass
 
-        _CACHE["timestamp"] = now
-        _CACHE["data"] = sats
         return sats
 
     except Exception as exc:
-        # Return stale cache if fetch fails rather than crashing
-        if _CACHE["data"]:
-            return _CACHE["data"]
         raise RuntimeError(f"TLE fetch failed and no cache available: {exc}") from exc
 
 
