@@ -19,3 +19,29 @@ local.properties
 # OS files
 .DS_Store
 Thumbs.db
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+**/venv/
+.venv/
+
+# Environment secrets
+.env
+**/.env
+
+# JWST downloaded FITS data (large binary astronomy data, not source)
+backend/jwst_data/
+
+# Ad-hoc manual test artifacts (curl/psql testing payloads and outputs)
+/signup.json
+/watch1.json
+/watch2.json
+/watch3.json
+/backend/tle_sample.json
+/jwst_*.json
+/jwst_premium_preview.png
+/backend/jwst_preview.png

@@ -10,6 +10,7 @@ from .star import Star
 from .quote import AstronomerQuote
 from .solar_event import SolarEvent
 from .subscription import UserSubscription, Transaction
+from .jwst_request import JWSTRequest
 
 __all__ = [
     'User',
@@ -25,4 +26,6 @@ __all__ = [
     'SolarEvent',
     'UserSubscription',
     'Transaction',
+    'JWSTRequest',
 ]
+

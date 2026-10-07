@@ -23,6 +23,7 @@ from app.routers import (
     satellites,
     sky_routes,
     payments,
+    jwst,
 )
 
 
@@ -30,7 +31,7 @@ from app.routers import (
 async def lifespan(app: FastAPI):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logger.info("🚀 Registered Routes:")
+    logger.info("Registered Routes:")
     for route in app.routes:
         if isinstance(route, APIRoute):
             methods = ",".join(route.methods)
@@ -66,8 +67,9 @@ app.include_router(events.router)
 app.include_router(satellites.router)
 app.include_router(sky_routes.router)
 app.include_router(payments.router)
+app.include_router(jwst.router)
 
 
 @app.get("/")
 def root():
-    return {"message": "🌌 Eye in the Sky API is running!", "version": "1.1.0"}
+    return {"message": "Eye in the Sky API is running!", "version": "1.1.0"}
