@@ -15,7 +15,7 @@ load_dotenv()
 # Make sure app directory is on sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# ✅ Use the SYNC database URL just for Alembic
+# ??? Use the SYNC database URL just for Alembic
 db_url = os.getenv("DATABASE_URL_SYNC")  # This must be set in .env
 if db_url:
     config.set_main_option("sqlalchemy.url", db_url)
@@ -34,6 +34,7 @@ from app.models.star import Star
 from app.models.quote import AstronomerQuote
 from app.models.solar_event import SolarEvent
 from app.models.subscription import UserSubscription, Transaction
+from app.models.jwst_request import JWSTRequest
 
 # Metadata for autogenerate support
 target_metadata = Base.metadata
@@ -77,3 +78,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

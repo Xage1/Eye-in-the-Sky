@@ -101,7 +101,7 @@ services:
       celery -A app.worker worker
       --loglevel=info
       --concurrency=2
-      -Q default,tle_refresh,alerts
+      -Q default,tle_refresh,alerts,jwst_processing
     env_file:
       - ./backend/.env
     environment:
