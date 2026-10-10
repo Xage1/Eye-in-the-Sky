@@ -1,4 +1,4 @@
-"""
+﻿"""
 Eye in the Sky API
 """
 
@@ -24,8 +24,8 @@ from app.routers import (
     sky_routes,
     payments,
     jwst,
+    notifications,
 )
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,7 +37,6 @@ async def lifespan(app: FastAPI):
             methods = ",".join(route.methods)
             logger.info(f"{methods:10s} | {route.path}")
     yield
-
 
 app = FastAPI(
     title="Eye in the Sky API",
@@ -68,7 +67,7 @@ app.include_router(satellites.router)
 app.include_router(sky_routes.router)
 app.include_router(payments.router)
 app.include_router(jwst.router)
-
+app.include_router(notifications.router)
 
 @app.get("/")
 def root():
