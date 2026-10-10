@@ -86,6 +86,11 @@ def download_and_process(obsid: str, filename: str, work_dir: str) -> dict:
     the exact file by name, download it via download_products, extract
     the SCI image, stretch it for visualization, and save a PNG preview.
 
+    Mosaic images have gaps between detector/dither tiles (NaN pixels).
+    Those are rendered as black (sky-black) rather than the default
+    white figure background, so the gaps blend into the image instead
+    of showing as a grid of white seams.
+
     Returns {"fits_path": ..., "preview_path": ...}
     """
     if not obsid:
@@ -128,12 +133,17 @@ def download_and_process(obsid: str, filename: str, work_dir: str) -> dict:
     vmin, vmax = interval.get_limits(sci[mask])
     norm = ImageNormalize(vmin=vmin, vmax=vmax, stretch=AsinhStretch())
 
+    cmap = plt.get_cmap("inferno").copy()
+    cmap.set_bad(color="black")
+
     fig, ax = plt.subplots(figsize=(10, 10), dpi=150)
-    ax.imshow(np.where(mask, sci, np.nan), cmap="inferno", origin="lower", norm=norm)
+    fig.patch.set_facecolor("black")
+    ax.set_facecolor("black")
+    ax.imshow(np.where(mask, sci, np.nan), cmap=cmap, origin="lower", norm=norm)
     ax.axis("off")
 
     preview_path = os.path.splitext(local_path)[0] + "_preview.png"
-    fig.savefig(preview_path, bbox_inches="tight", pad_inches=0)
+    fig.savefig(preview_path, bbox_inches="tight", pad_inches=0, facecolor="black")
     plt.close(fig)
 
     return {"fits_path": local_path, "preview_path": preview_path}
