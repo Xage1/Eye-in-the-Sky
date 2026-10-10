@@ -1,4 +1,4 @@
-from .user import User
+﻿from .user import User
 from .user_settings import UserSettings
 from .location import Location
 from .quiz import QuizQuestion
@@ -11,6 +11,7 @@ from .quote import AstronomerQuote
 from .solar_event import SolarEvent
 from .subscription import UserSubscription, Transaction
 from .jwst_request import JWSTRequest
+from .notification import Notification
 
 __all__ = [
     'User',
@@ -27,5 +28,5 @@ __all__ = [
     'UserSubscription',
     'Transaction',
     'JWSTRequest',
+    'Notification',
 ]
-
