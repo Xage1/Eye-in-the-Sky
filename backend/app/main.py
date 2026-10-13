@@ -25,6 +25,7 @@ from app.routers import (
     payments,
     jwst,
     notifications,
+    location,
 )
 
 @asynccontextmanager
@@ -68,6 +69,7 @@ app.include_router(sky_routes.router)
 app.include_router(payments.router)
 app.include_router(jwst.router)
 app.include_router(notifications.router)
+app.include_router(location.router)
 
 @app.get("/")
 def root():

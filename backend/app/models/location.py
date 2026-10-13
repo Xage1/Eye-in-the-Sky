@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Float, Integer, String, ForeignKey
+﻿from sqlalchemy import Column, Float, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.database import Base
 
 class Location(Base):
@@ -12,6 +13,11 @@ class Location(Base):
     country = Column(String(128), nullable=True)
     state = Column(String(128), nullable=True)
     city = Column(String(128), nullable=True)
+
+    visibility_score = Column(Integer, nullable=True)
+    visibility_updated_at = Column(DateTime, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
