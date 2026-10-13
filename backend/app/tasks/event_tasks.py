@@ -43,6 +43,11 @@ def _user_can_see_event(event: SolarEvent, user: User) -> bool:
     return any(lo <= loc.latitude <= hi for loc in user.locations)
 
 
+def _format_title(event: SolarEvent) -> str:
+    label = event.event_type.replace("_", " ").title()
+    return f"{label}: {event.name}"
+
+
 @celery_app.task(
     name="app.tasks.event_tasks.check_upcoming_events",
     bind=True,
@@ -97,7 +102,7 @@ def check_upcoming_events(self):
                 notif = Notification(
                     user_id=user.id,
                     solar_event_id=event.id,
-                    title=f"{event.event_type.replace(\x27_\x27, \x27 \x27).title()}: {event.name}",
+                    title=_format_title(event),
                     message=(
                         f"{event.name} peaks around {when:%b %d, %Y %H:%M} UTC. "
                         + (event.description or "")
