@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Query
-from app.utils.weather import get_visibility_forecast
-from app.utils.astronomy import get_events
+﻿from fastapi import APIRouter, Query
+from app.utils.astronomy import get_visibility_forecast, get_events
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
