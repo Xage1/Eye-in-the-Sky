@@ -98,40 +98,7 @@ Built with **Kotlin + Jetpack Compose** on Android and a **Python (FastAPI) + Po
 
 ## Architecture
 
-```
-+---------------------------------------------------------------+
-|               Android App (Kotlin / Jetpack Compose)          |
-|                                                                 |
-|  AR Star Map  |  Astronomy 101  |  Sky Watch  |  Satellites   |
-|                                                                 |
-|  CameraX + SensorManager -> AR overlay renderer                |
-|  Retrofit / OkHttp -> FastAPI backend (HTTPS)                  |
-+---------------------------------------------------------------+
-                            | HTTPS
-                            v
-+---------------------------------------------------------------+
-|              Python FastAPI Gateway                           |
-|                                                                 |
-|  Auth | Quiz/Lesson | SkyInfo | Events | Notifications | JWST  |
-|  Location | Satellites | Payments                             |
-|                                                                 |
-|  Redis cache/broker  <->  Celery workers + Beat scheduler      |
-+--------------+-----------------------------+-------------------+
-               |                             |
-               v                             v
-      +-----------------+         +--------------------------+
-      |   PostgreSQL    |         |   External APIs          |
-      |                 |         |                           |
-      |  Users          |         |  CelesTrak (TLE)          |
-      |  Subscriptions   |         |  MAST / astroquery (JWST) |
-      |  Quiz/Lessons    |         |  AstronomyAPI             |
-      |  solar_events    |         |  Open Notify (ISS)        |
-      |  notifications   |         |  OpenWeather              |
-      |  location_entries|         |  N2YO                     |
-      |  jwst_requests   |         |  OpenStreetMap Nominatim  |
-      |  star_watchlist  |         |  Stripe / M-Pesa / Paystack|
-      +-----------------+         +--------------------------+
-```
+![Eye in the Sky Architecture](./assets/eye_in_the_sky_architecture.svg)
 
 Celery Beat currently drives three recurring jobs: TLE refresh (every 6h), celestial-event alert scan (daily at midnight UTC), and visibility-score refresh (every 3h). JWST image processing runs on its own queue (`jwst_processing`) since downloads can be hundreds of megabytes and take minutes.
 
