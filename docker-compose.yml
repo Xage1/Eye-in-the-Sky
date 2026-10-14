@@ -1,13 +1,13 @@
-# ============================================================
-#  Eye in the Sky — Full Stack Docker Compose
-#  Services: api · worker · postgres · redis
+﻿# ============================================================
+#  Eye in the Sky -- Full Stack Docker Compose
+#  Services: api, worker, beat, postgres, redis
 #  Run: docker-compose up --build
 # ============================================================
 
 services:
 
   # ----------------------------------------------------------
-  #  PostgreSQL — primary database
+  #  PostgreSQL -- primary database
   # ----------------------------------------------------------
   postgres:
     image: postgres:15-alpine
@@ -30,7 +30,7 @@ services:
       - eyesky_net
 
   # ----------------------------------------------------------
-  #  Redis — cache, pub/sub, Celery broker
+  #  Redis -- cache, pub/sub, Celery broker
   # ----------------------------------------------------------
   redis:
     image: redis:7-alpine
@@ -50,7 +50,7 @@ services:
       - eyesky_net
 
   # ----------------------------------------------------------
-  #  FastAPI — main backend API
+  #  FastAPI -- main backend API
   # ----------------------------------------------------------
   api:
     build:
@@ -61,15 +61,18 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      # Override localhost URLs to use Docker service names
+      # Override localhost URLs to use Docker service names.
+      # Do NOT add third-party API keys here (ASTRONOMY_API_KEY,
+      # WEATHER_API_KEY, N2YO_API_KEY, etc.) -- env_file above
+      # already loads them correctly from backend/.env. Redeclaring
+      # them as ${VAR:-} resolves against Compose's own host/root
+      # .env context, which has no such keys, and silently blanks
+      # them out. This bit us once already -- see git history.
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
       DATABASE_URL_SYNC: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-kenneth1998**}@postgres:5432/${POSTGRES_DB:-eye_db}
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY:-supersecretastronomyjwt}
       ALGORITHM: HS256
-      ASTRONOMY_API_KEY: ${ASTRONOMY_API_KEY:-}
-      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
-      N2YO_API_KEY: ${N2YO_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
@@ -88,8 +91,8 @@ services:
       retries: 5
 
   # ----------------------------------------------------------
-  #  Celery Worker — background jobs
-  #  TLE refresh every 6h · event alert scheduler
+  #  Celery Worker -- background jobs
+  #  TLE refresh every 6h, event alert scheduler, weather refresh
   # ----------------------------------------------------------
   worker:
     build:
@@ -120,7 +123,7 @@ services:
       - eyesky_net
 
   # ----------------------------------------------------------
-  #  Celery Beat — periodic task scheduler
+  #  Celery Beat -- periodic task scheduler
   #  Triggers TLE refresh, weather checks, event checks
   # ----------------------------------------------------------
   beat:
@@ -149,14 +152,14 @@ services:
       - eyesky_net
 
 # ============================================================
-#  Named volumes — data persists across container restarts
+#  Named volumes -- data persists across container restarts
 # ============================================================
 volumes:
   postgres_data:
   redis_data:
 
 # ============================================================
-#  Internal network — services talk by name, not localhost
+#  Internal network -- services talk by name, not localhost
 # ============================================================
 networks:
   eyesky_net:
