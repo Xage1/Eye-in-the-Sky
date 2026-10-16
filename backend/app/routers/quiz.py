@@ -1,26 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.database import SessionLocal
+from app.utils.deps import get_db, get_current_user
 from app.models.quiz import QuizQuestion
 from app.models.quiz_answer import QuizAnswer
 from app.models.quiz_submission import QuizSubmission
 from app.schemas.quiz_submission import QuizSubmissionOut, QuizSubmissionCreate
 from app.schemas.quiz import QuizSubmit, QuizAnswer
 from app.models.user import User
-from app.utils.deps import get_current_user
 import json
 
 router = APIRouter(prefix="/quiz", tags=["Quiz"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# ✅ GET /quiz/
+# GET /quiz/
 @router.get("/")
 async def get_questions(
     difficulty: str = "simple",
@@ -45,7 +38,6 @@ async def get_questions(
     ]
 
 
-
 @router.post("/submit", response_model=QuizSubmissionOut)
 async def submit_quiz(
     submission: QuizSubmissionCreate,
@@ -61,7 +53,7 @@ async def submit_quiz(
         total_questions=total
     )
     db.add(new_submission)
-    await db.flush()  # Get new_submission.id
+    await db.flush()
 
     for ans in submission.answers:
         db.add(QuizAnswer(
