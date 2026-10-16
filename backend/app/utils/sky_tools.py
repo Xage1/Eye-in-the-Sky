@@ -1,99 +1,105 @@
 import json
+import re
+from functools import lru_cache
 from pathlib import Path
-from datetime import datetime
-from astropy.coordinates import SkyCoord, AltAz, EarthLocation
-from astropy.time import Time
+
 import astropy.units as u
+import numpy as np
+from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_constellation
+from astropy.time import Time
+from astropy.utils import iers
 
-# === Load star and constellation data ===
-def load_data():
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / "data"
-    stars_path = data_dir / "stars.json"
-    constellations_path = data_dir / "constellations.json"
+try:
+    # Never block on a download or fail when IERS tables lack current dates.
+    iers.conf.auto_download = False
+    iers.conf.iers_degraded_accuracy = "ignore"
+except Exception:
+    pass
 
-    with stars_path.open("r", encoding="utf-8") as f:
-        stars = json.load(f)
-    with constellations_path.open("r", encoding="utf-8") as f:
-        constellations = json.load(f)
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
-    return stars, constellations
+_RA = re.compile(r"^\d{1,2}:\d{2}:\d{2}(\.\d+)?$")
+_DEC = re.compile(r"^[+-]?\d{1,2}:\d{2}:\d{2}(\.\d+)?$")
 
 
-# === Visible Constellations ===
-def identify_visible_constellations(lat, lon, azimuth, when=None, radius=10):
-    stars, constellations = load_data()
-    when = when or datetime.utcnow()
-    location = EarthLocation(lat=lat * u.deg, lon=lon * u.deg)
-    time = Time(when)
-    altaz_frame = AltAz(obstime=time, location=location)
-    center_coord = SkyCoord(az=azimuth * u.deg, alt=45 * u.deg, frame=altaz_frame)
+@lru_cache(maxsize=1)
+def _constellations():
+    with (DATA_DIR / "constellations.json").open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-    closest_constellation = None
-    min_dist = 999
-    for const_name, const_data in constellations.items():
-        try:
-            major_stars = const_data.get("major_stars", [])
-            if not major_stars:
-                continue
-            star_coords = []
-            for s in major_stars:
-                try:
-                    match = next((x for x in stars if x.get("name") == s), None)
-                    if match:
-                        star_coords.append(SkyCoord(ra=match["ra"] * u.deg, dec=match["dec"] * u.deg))
-                except Exception:
-                    continue
-            if not star_coords:
-                continue
-            avg_ra = sum(sc.ra.deg for sc in star_coords) / len(star_coords)
-            avg_dec = sum(sc.dec.deg for sc in star_coords) / len(star_coords)
-            const_coord = SkyCoord(ra=avg_ra * u.deg, dec=avg_dec * u.deg)
-            const_altaz = const_coord.transform_to(altaz_frame)
-            if const_altaz.alt < 0 * u.deg:
-                continue
-            dist = center_coord.separation(const_altaz).deg
-            if dist < min_dist:
-                min_dist = dist
-                closest_constellation = {
-                    "name": const_name,
-                    "description": const_data.get("description"),
-                    "myth": const_data.get("myth"),
-                    "discoverer": const_data.get("discoverer"),
-                    "year": const_data.get("year"),
-                    "brightest_star": const_data.get("brightest_star"),
-                    "major_stars": const_data.get("major_stars"),
-                    "distance_deg": round(dist, 2),
-                }
-        except Exception:
+
+@lru_cache(maxsize=1)
+def _catalogue():
+    """Parse the Harvard Revised catalogue once: (SkyCoord array, HR numbers, magnitudes)."""
+    with (DATA_DIR / "stars.json").open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    ra, dec, hr, mag = [], [], [], []
+    for row in raw:
+        r = str(row.get("RA", "")).strip()
+        d = str(row.get("DEC", "")).strip()
+        if not (_RA.match(r) and _DEC.match(d)):
             continue
-    return closest_constellation
-
-
-# === Nearby Stars (Simplified version) ===
-def find_nearby_stars(lat, lon, azimuth, radius=15, when=None):
-    stars, _ = load_data()
-    when = when or datetime.utcnow()
-    location = EarthLocation(lat=lat * u.deg, lon=lon * u.deg)
-    time = Time(when)
-    altaz_frame = AltAz(obstime=time, location=location)
-    center_coord = SkyCoord(az=azimuth * u.deg, alt=45 * u.deg, frame=altaz_frame)
-
-    visible = []
-    for s in stars:
         try:
-            star_coord = SkyCoord(ra=s["ra"] * u.deg, dec=s["dec"] * u.deg, frame="icrs")
-            star_altaz = star_coord.transform_to(altaz_frame)
-            if star_altaz.alt <= 0 * u.deg:
-                continue
-            separation = center_coord.separation(star_altaz).deg
-            if separation <= radius:
-                visible.append({
-                    "name": s.get("name"),
-                    "mag": s.get("mag"),
-                    "constellation": s.get("constellation"),
-                    "distance_deg": round(separation, 2),
-                })
-        except Exception:
+            m = float(row["MAG"])
+            n = int(row["harvard_ref_#"])
+        except (KeyError, TypeError, ValueError):
             continue
-    return sorted(visible, key=lambda s: s.get("mag", 99))
+        ra.append(r)
+        dec.append(d)
+        hr.append(n)
+        mag.append(m)
+
+    coords = SkyCoord(ra=ra, dec=dec, unit=(u.hourangle, u.deg), frame="icrs")
+    return coords, np.array(hr), np.array(mag)
+
+
+def _frame_and_center(lat, lon, azimuth, altitude, when):
+    time = Time(when) if when else Time.now()
+    location = EarthLocation(lat=lat * u.deg, lon=lon * u.deg)
+    frame = AltAz(obstime=time, location=location)
+    center = SkyCoord(az=azimuth * u.deg, alt=altitude * u.deg, frame=frame)
+    return frame, center
+
+
+def identify_visible_constellations(lat, lon, azimuth=0.0, altitude=45.0, when=None):
+    """Constellation the user is looking at (IAU boundaries via astropy)."""
+    _, center = _frame_and_center(lat, lon, azimuth, altitude, when)
+    name = str(get_constellation(center.icrs))
+    info = _constellations().get(name, {})
+    return {
+        "name": name,
+        "description": info.get("description"),
+        "myth": info.get("myth"),
+        "discoverer": info.get("discoverer"),
+        "year": info.get("year"),
+        "brightest_star": info.get("brightest_star"),
+        "major_stars": info.get("major_stars"),
+    }
+
+
+def find_nearby_stars(lat, lon, azimuth=0.0, altitude=45.0, radius=15.0, when=None, limit=50):
+    """Brightest catalogue stars above the horizon within `radius` degrees of the viewing direction."""
+    coords, hr, mag = _catalogue()
+    frame, center = _frame_and_center(lat, lon, azimuth, altitude, when)
+
+    altaz = coords.transform_to(frame)
+    sep = center.separation(altaz).deg
+    idx = np.flatnonzero((altaz.alt.deg > 0) & (sep <= radius))
+    if idx.size == 0:
+        return []
+
+    idx = idx[np.argsort(mag[idx])][:limit]
+    consts = get_constellation(coords[idx])
+
+    return [
+        {
+            "hr": int(hr[i]),
+            "mag": float(mag[i]),
+            "constellation": str(consts[k]),
+            "altitude_deg": round(float(altaz.alt.deg[i]), 2),
+            "azimuth_deg": round(float(altaz.az.deg[i]), 2),
+            "distance_deg": round(float(sep[i]), 2),
+        }
+        for k, i in enumerate(idx)
+    ]
