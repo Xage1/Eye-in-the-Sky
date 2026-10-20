@@ -1,17 +1,22 @@
-from fastapi import APIRouter, Query
-from app.utils.astronomy import get_constellation_data
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.concurrency import run_in_threadpool
+
+from app.services.constellation_service import evening_time, visible_constellations
 
 router = APIRouter(prefix="/starmap", tags=["Star Map"])
 
+
 @router.get("/")
-async def starmap(lat: float = Query(..., description="Latitude of the observer's location"),
-                  lon: float = Query(..., description="Longitude of the observer's location"),
-                  date: str = Query(None, description="Date in YYYY-MM-DD format (optional)")):
-    """
-    Get star map data for a given latitude, longitude, and optional date.
-    """
-    try:
-        data = await get_constellation_data(lat, lon, date)
-        return {"constellations": data}
-    except Exception as e:
-        return {"error": str(e)}
+async def starmap(lat: float = Query(..., ge=-90, le=90, description="Observer latitude"),
+                  lon: float = Query(..., ge=-180, le=180, description="Observer longitude"),
+                  date: Optional[str] = Query(None, description="YYYY-MM-DD; shows 20:00 local solar time")):
+    when = None
+    if date:
+        try:
+            when = evening_time(lon, date)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="date must be YYYY-MM-DD")
+    data = await run_in_threadpool(visible_constellations, lat, lon, when)
+    return {"observer": {"lat": lat, "lon": lon}, **data}

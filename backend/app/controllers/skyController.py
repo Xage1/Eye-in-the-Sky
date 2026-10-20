@@ -810,3 +810,26 @@ async def get_full_sky_scene(
         scene["visibility"] = None
 
     return scene
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  Fast per-frame implementations (override the slow originals defined above).
+#  Originals are kept as _orig_* for comparison; delete this block to revert.
+# ═════════════════════════════════════════════════════════════════════════════
+_orig_get_visible_stars = get_visible_stars
+_orig_get_planet_positions = get_planet_positions
+_orig_get_visible_satellites = get_visible_satellites
+_orig_get_iss_position = get_iss_position
+
+from app.services.scene_fast import (  # noqa: E402
+    get_iss_position,
+    get_planet_positions,
+    get_visible_satellites,
+    get_visible_stars,
+    warm as _warm_scene,
+)
+
+_warm_scene()
+
+from app.utils.ttl_cache import async_ttl_cache  # noqa: E402
+
+get_sky_visibility = async_ttl_cache(600)(get_sky_visibility)

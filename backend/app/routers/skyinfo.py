@@ -27,7 +27,9 @@ Sources
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.concurrency import run_in_threadpool
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers.skyController import (
     get_celestial_events,
@@ -40,7 +42,10 @@ from app.controllers.skyController import (
     get_star_detail,
     get_visible_stars,
 )
-from app.utils.astronomy import get_star_rise_set
+from app.services.rise_set_service import get_rise_set
+from app.services.events_service import upcoming_events
+from app.services.star_service import get_star_detail_db
+from app.utils.deps import get_db
 
 router = APIRouter(prefix="/skyinfo", tags=["Sky Information"])
 
@@ -141,9 +146,9 @@ async def star_rise_set(
 ):
     """
     Returns rise, transit, and set times for stars and planets at the given
-    location and date. Powered by AstronomyAPI — requires ASTRONOMY_API_KEY.
+    location and date. Computed locally with astropy (no external API).
     """
-    data = await get_star_rise_set(lat, lon, date)
+    data = await run_in_threadpool(get_rise_set, lat, lon, _parse_datetime(date))
     if isinstance(data, dict) and "error" in data:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -285,23 +290,18 @@ async def iss_position(
 @router.get(
     "/events",
     summary="Upcoming celestial events",
-    response_description="Meteor showers, eclipses, conjunctions from AstronomyAPI",
+    response_description="Meteor showers and eclipses from the local events database",
 )
 async def celestial_events(
-    lat: float = Query(..., description="Observer latitude (decimal degrees)"),
-    lon: float = Query(..., description="Observer longitude (decimal degrees)"),
+    lat: float = Query(..., ge=-90, le=90, description="Observer latitude (decimal degrees)"),
+    lon: float = Query(..., ge=-180, le=180, description="Observer longitude (decimal degrees)"),
+    days: int = Query(120, ge=1, le=730),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
 ):
-    """
-    Returns upcoming celestial events for the observer's location.
-    Powered by AstronomyAPI — requires ASTRONOMY_API_KEY in your .env.
-    """
-    data = await get_celestial_events(lat, lon)
-    if "error" in data:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=data["error"],
-        )
-    return {"observer": {"lat": lat, "lon": lon}, "events": data}
+    """Upcoming celestial events for the observer's latitude, from the local database."""
+    items = await upcoming_events(db, lat, days, limit)
+    return {"observer": {"lat": lat, "lon": lon}, "events": items}
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -313,7 +313,7 @@ async def celestial_events(
     summary="Star detail — tap to learn",
     response_description="Full star data enriched with constellation mythology",
 )
-async def star_detail(star_name: str):
+async def star_detail(star_name: str, db: AsyncSession = Depends(get_db)):
     """
     Returns full catalogue data for a named star plus the mythology,
     discoverer, and brightest-star info for its parent constellation.
@@ -321,7 +321,7 @@ async def star_detail(star_name: str):
     Used by the Kotlin AR overlay when the user taps a star label.
     Matches on common name, Bayer designation, or HR identifier.
     """
-    detail = get_star_detail(star_name)
+    detail = await get_star_detail_db(db, star_name)
     if not detail:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -103,3 +103,14 @@ def find_nearby_stars(lat, lon, azimuth=0.0, altitude=45.0, radius=15.0, when=No
         }
         for k, i in enumerate(idx)
     ]
+
+def warm_up() -> None:
+    """Pay the one-off catalogue parse and astropy start-up cost at boot, not on the first request."""
+    try:
+        find_nearby_stars(0.0, 0.0, 0.0, 45.0, 1.0)
+        identify_visible_constellations(0.0, 0.0, 0.0, 45.0)
+    except Exception:
+        pass
+
+
+warm_up()
