@@ -2,17 +2,23 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
+
 class QuizAnswerIn(BaseModel):
     question_id: int
     selected_answer: str
-    correct_answer: str
+
 
 class QuizSubmissionCreate(BaseModel):
     answers: List[QuizAnswerIn]
 
-class QuizAnswerOut(QuizAnswerIn):
+
+class QuizAnswerOut(BaseModel):
     id: int
+    question_id: int
+    selected_answer: str
+    correct_answer: str  # revealed only after submitting
     model_config = {"from_attributes": True}
+
 
 class QuizSubmissionOut(BaseModel):
     id: int

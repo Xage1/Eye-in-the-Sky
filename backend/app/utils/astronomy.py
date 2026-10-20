@@ -123,3 +123,8 @@ async def get_visibility_forecast(lat: float, lon: float):
             }
     except Exception as e:
         return {"error": str(e)}
+
+
+from app.utils.ttl_cache import async_ttl_cache  # noqa: E402
+
+get_visibility_forecast = async_ttl_cache(600)(get_visibility_forecast)
