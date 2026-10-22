@@ -23,6 +23,7 @@ celery_app = Celery(
         "app.tasks.event_tasks",
         "app.tasks.weather_tasks",
         "app.tasks.jwst_tasks",
+        "app.tasks.subscription_tasks",
     ],
 )
 
@@ -37,6 +38,7 @@ celery_app.conf.update(
         "app.tasks.event_tasks*": {"queue": "alerts"},
         "app.tasks.weather_tasks*": {"queue": "default"},
         "app.tasks.jwst_tasks.*": {"queue": "jwst_processing"},
+        "app.tasks.subscription_tasks.*": {"queue": "default"},
     },
 )
 
@@ -48,6 +50,10 @@ celery_app.conf.beat_schedule = {
     "check-celestial-events-daily": {
         "task": "app.tasks.event_tasks.check_upcoming_events",
         "schedule": crontab(minute=0, hour=0),
+    },
+    "expire-subscriptions-daily": {
+        "task": "app.tasks.subscription_tasks.expire_subscriptions",
+        "schedule": crontab(minute=15, hour=0),
     },
     "refresh-weather-every-3h": {
         "task": "app.tasks.weather_tasks.refresh_visibility_scores",
