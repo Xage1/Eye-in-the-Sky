@@ -3,6 +3,7 @@ Dependency injection for Eye in the Sky.
 Includes auth, DB session, and premium feature gating.
 """
 
+from datetime import datetime, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -73,6 +74,12 @@ async def _get_active_plan(user: User, db: AsyncSession) -> PlanTier:
     )
     sub = result.scalars().first()
     if sub and sub.status == SubscriptionStatus.active:
+        end = sub.current_period_end
+        if end is not None:
+            if end.tzinfo is None:
+                end = end.replace(tzinfo=timezone.utc)
+            if end <= datetime.now(timezone.utc):
+                return PlanTier.free  # paid period over
         return sub.plan
     return PlanTier.free
 

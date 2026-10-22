@@ -208,3 +208,31 @@ def parse_stk_callback(body: dict) -> dict:
                 result["amount"] = value
 
     return result
+
+async def query_stk_status(checkout_request_id: str) -> dict:
+    """
+    Ask Safaricom for the final outcome of an STK push (STK Push Query).
+    This is the authoritative answer - a callback body is never trusted on its own.
+    Raises on HTTP errors: Daraja answers with an error while the prompt is still pending.
+    """
+    password, timestamp = _generate_password()
+    token = await _get_access_token()
+    payload = {
+        "BusinessShortCode": SHORTCODE,
+        "Password":          password,
+        "Timestamp":         timestamp,
+        "CheckoutRequestID": checkout_request_id,
+    }
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.post(
+            f"{BASE_URL}/mpesa/stkpushquery/v1/query",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json=payload,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    try:
+        code = int(data.get("ResultCode"))
+    except (TypeError, ValueError):
+        code = None
+    return {"result_code": code, "confirmed": code == 0, "result_desc": data.get("ResultDesc")}
