@@ -14,7 +14,17 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import android.hardware.camera2.CameraCharacteristics
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
@@ -61,6 +71,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import kotlin.math.acos
 import kotlin.math.asin
+import kotlin.math.atan
+import kotlin.math.tan
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -166,9 +178,11 @@ private class Cam {
     var halfH = 1f; var halfV = 1f
     var cosCull = 0f
     var outX = 0f; var outY = 0f
+    var focal = 0f   // > 0: camera (pinhole) projection in pixels; 0: map (equidistant) projection
 
     /** rot is Android's rotation matrix (device -> East/North/Up); decl is magnetic declination in radians. */
-    fun set(rot: FloatArray, decl: Double, fovHDeg: Float, width: Float, height: Float) {
+    fun set(rot: FloatArray, decl: Double, fovHDeg: Float, width: Float, height: Float, focalPx: Float) {
+        focal = focalPx
         val c = cos(decl).toFloat()
         val s = sin(decl).toFloat()
         xe = rot[0] * c + rot[3] * s; xn = -rot[0] * s + rot[3] * c; xu = rot[6]
@@ -185,6 +199,12 @@ private class Cam {
     /** Project a unit vector. Returns false when it is outside the view; otherwise sets outX/outY. */
     fun project(te: Float, tn: Float, tu: Float): Boolean {
         val dot = te * fe + tn * fn + tu * fu
+        if (focal > 0f) {
+            if (dot < 0.08f) return false
+            outX = w / 2f + focal * (te * xe + tn * xn + tu * xu) / dot
+            outY = h / 2f - focal * (te * ye + tn * yn + tu * yu) / dot
+            return outX > -60f && outX < w + 60f && outY > -60f && outY < h + 60f
+        }
         if (dot < cosCull) return false
         val ang = acos(dot.coerceIn(-1f, 1f))
         val k = if (ang < 1e-4f) 1f else ang / sin(ang)
@@ -193,6 +213,27 @@ private class Cam {
         outX = w / 2f + ax / halfH * (w / 2f)
         outY = h / 2f - ay / halfV * (h / 2f)
         return true
+    }
+}
+
+/** Field of view (degrees) along the camera sensor's long axis, which is the screen height in portrait. */
+@OptIn(ExperimentalCamera2Interop::class)
+private fun cameraFovLongDeg(camera: Camera): Double? {
+    return try {
+        val c2 = Camera2CameraInfo.from(camera.cameraInfo)
+        val size = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: return null
+        val focal = c2.getCameraCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+            ?.firstOrNull() ?: return null
+        var longMm = max(size.width, size.height).toDouble()
+        val pix = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+        val act = c2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+        if (pix != null && act != null) {
+            longMm *= max(act.width(), act.height()).toDouble() / max(pix.width, pix.height)
+        }
+        val deg = Math.toDegrees(2.0 * atan(longMm / (2.0 * focal)))
+        if (deg in 40.0..100.0) deg else null
+    } catch (e: Exception) {
+        null
     }
 }
 
@@ -229,6 +270,34 @@ fun SkyScreen(onBack: () -> Unit) {
     var tick by remember { mutableIntStateOf(0) }
     var hasSensor by remember { mutableStateOf(true) }
     val rot = remember { floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f) }
+
+    var camGranted by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+    var arOn by remember { mutableStateOf(camGranted) }
+    var camReady by remember { mutableStateOf(false) }
+    var fovLongDeg by remember { mutableStateOf(68.0) }
+    var arZoom by remember { mutableStateOf(1f) }
+    val camRef = remember { arrayOfNulls<Camera>(1) }
+    val camPermLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        camGranted = ok
+        if (ok) arOn = true
+    }
+    val arActive = arOn && camGranted && camReady
+
+    DisposableEffect(arOn) {
+        onDispose {
+            if (camRef[0] != null) {
+                camRef[0] = null
+                camReady = false
+                try {
+                    ProcessCameraProvider.getInstance(ctx).get().unbindAll()
+                } catch (e: Exception) { }
+            }
+        }
+    }
 
     val vec = remember(stars) { FloatArray(stars.size * 3) }
     val px = remember(stars) { FloatArray(stars.size) }
@@ -382,7 +451,35 @@ fun SkyScreen(onBack: () -> Unit) {
         }
     }
 
-    Box(Modifier.fillMaxSize().background(bg)) {
+    Box(Modifier.fillMaxSize().background(if (arActive) Color.Transparent else bg)) {
+        if (arOn && camGranted) {
+            AndroidView(
+                factory = { c ->
+                    PreviewView(c).also { pv ->
+                        pv.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                        val future = ProcessCameraProvider.getInstance(c)
+                        future.addListener({
+                            try {
+                                val provider = future.get()
+                                val preview = Preview.Builder().build()
+                                preview.setSurfaceProvider(pv.surfaceProvider)
+                                provider.unbindAll()
+                                val camera = provider.bindToLifecycle(
+                                    ctx as ComponentActivity, CameraSelector.DEFAULT_BACK_CAMERA, preview
+                                )
+                                camRef[0] = camera
+                                cameraFovLongDeg(camera)?.let { fovLongDeg = it }
+                                camReady = true
+                            } catch (e: Exception) {
+                                camReady = false
+                                status = "Camera unavailable: " + e.message
+                            }
+                        }, ContextCompat.getMainExecutor(c))
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
         Canvas(
             Modifier
                 .fillMaxSize()
@@ -414,14 +511,24 @@ fun SkyScreen(onBack: () -> Unit) {
                     }
                 }
                 .pointerInput(Unit) {
-                    detectTransformGestures { _, _, zoom, _ -> fov = (fov / zoom).coerceIn(25f, 100f) }
+                    detectTransformGestures { _, _, zoom, _ ->
+                        if (arOn && camGranted && camReady) {
+                            val maxZ = camRef[0]?.cameraInfo?.zoomState?.value?.maxZoomRatio ?: 1f
+                            arZoom = (arZoom * zoom).coerceIn(1f, min(maxZ, 8f))
+                            camRef[0]?.cameraControl?.setZoomRatio(arZoom)
+                        } else {
+                            fov = (fov / zoom).coerceIn(25f, 100f)
+                        }
+                    }
                 }
         ) {
             @Suppress("UNUSED_VARIABLE")
             val frame = tick
             val w = size.width
             val h = size.height
-            cam.set(rot, Math.toRadians(declDeg), fov, w, h)
+            val focal = if (arActive) (h / 2f) / tan(Math.toRadians(fovLongDeg / 2.0)).toFloat() * arZoom else 0f
+            cam.set(rot, Math.toRadians(declDeg), fov, w, h, focal)
+            if (arActive) drawRect(Color.Black.copy(alpha = 0.2f))
             markers.clear()
 
             // horizon
@@ -551,9 +658,20 @@ fun SkyScreen(onBack: () -> Unit) {
         ) {
             TextButton(onClick = onBack) { Text("‹ Back", color = ink) }
             Spacer(Modifier.weight(1f))
-            Text(hud, color = ink, style = MaterialTheme.typography.titleMedium)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(hud, color = ink, style = MaterialTheme.typography.titleMedium)
+                Text(locNote, color = dim, style = MaterialTheme.typography.labelSmall)
+            }
             Spacer(Modifier.weight(1f))
-            Text(locNote, color = dim, style = MaterialTheme.typography.labelSmall)
+            TextButton(onClick = {
+                if (arOn) {
+                    arOn = false
+                } else if (camGranted) {
+                    arOn = true
+                } else {
+                    camPermLauncher.launch(Manifest.permission.CAMERA)
+                }
+            }) { Text(if (arOn) "Map" else "Camera", color = cyan) }
         }
 
         // messages and the tap card

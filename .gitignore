@@ -45,3 +45,4 @@ backend/jwst_data/
 /jwst_*.json
 /jwst_premium_preview.png
 /backend/jwst_preview.png
+backend/app/data/hyg/
