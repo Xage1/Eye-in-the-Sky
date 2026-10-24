@@ -304,6 +304,8 @@ _sat_lock = threading.Lock()
 
 def _sat_catalogue():
     now = time.time()
+    if _sat_cache["arr"] is None and now < _sat_cache.get("fail_until", 0.0):
+        return _sat_cache["names"], None
     if _sat_cache["arr"] is not None and now - _sat_cache["t"] < _SAT_TTL:
         return _sat_cache["names"], _sat_cache["arr"]
     with _sat_lock:
@@ -312,7 +314,12 @@ def _sat_catalogue():
         from sgp4.api import Satrec, SatrecArray
         from app.services import satellite_service as ss
         names, objs = [], []
-        for t in ss.fetch_tle_data() or []:
+        try:
+            tles = ss.fetch_tle_data() or []
+        except Exception as exc:
+            logger.warning("TLE source unavailable: %s", exc)
+            tles = []
+        for t in tles:
             try:
                 objs.append(Satrec.twoline2rv(t["tle1"], t["tle2"]))
                 names.append(t["name"])
@@ -320,7 +327,9 @@ def _sat_catalogue():
                 continue
         _sat_cache["names"] = names
         _sat_cache["arr"] = SatrecArray(objs) if objs else None
-        _sat_cache["t"] = now if objs else now - (_SAT_TTL - 60.0)  # retry empties after 60 s
+        _sat_cache["t"] = now
+        if not objs:
+            _sat_cache["fail_until"] = now + 1800.0  # do not hammer the TLE source
         return _sat_cache["names"], _sat_cache["arr"]
 
 
