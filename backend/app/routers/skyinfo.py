@@ -328,3 +328,14 @@ async def star_detail(star_name: str, db: AsyncSession = Depends(get_db)):
             detail=f"Star '{star_name}' not found in catalogue.",
         )
     return {"star": detail}
+
+@router.get("/dome", summary="Whole sky for on-device rendering")
+async def sky_dome(
+    lat: float = Query(..., description="Observer latitude (decimal degrees)"),
+    lon: float = Query(..., description="Observer longitude (decimal degrees)"),
+    mag_limit: float = Query(5.5, description="Faintest star magnitude to include"),
+    stars: bool = Query(True, description="Include the static star list (RA/Dec)"),
+    when: Optional[str] = Query(None, description="UTC ISO 8601, defaults to now"),
+):
+    from app.services.dome_service import build_dome
+    return await build_dome(lat, lon, _parse_datetime(when), mag_limit, stars)
