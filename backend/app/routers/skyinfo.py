@@ -339,3 +339,25 @@ async def sky_dome(
 ):
     from app.services.dome_service import build_dome
     return await build_dome(lat, lon, _parse_datetime(when), mag_limit, stars)
+
+
+# ---- object info (planets, Sun, Moon, stars) ----
+from fastapi import HTTPException as _ObjHTTPException
+from app.services import object_info as _object_info
+
+
+@router.get("/object/star/{hr}")
+async def object_star(hr: int):
+    info = _object_info.star_info(hr)
+    if info is None:
+        raise _ObjHTTPException(status_code=404, detail="Star not in catalogue")
+    return info
+
+
+@router.get("/object/{key}")
+async def object_body(key: str):
+    info = _object_info.body_info(key)
+    if info is None:
+        raise _ObjHTTPException(status_code=404, detail="Unknown object")
+    return info
+
