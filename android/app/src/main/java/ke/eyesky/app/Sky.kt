@@ -102,7 +102,9 @@ class SkyBody(val name: String, val az: Double, val alt: Double)
 
 class Bodies(val planets: List<SkyBody>, val sats: List<SkyBody>, val iss: SkyBody?)
 
-private class Marker(val x: Float, val y: Float, val title: String, val detail: String)
+private class Marker(val x: Float, val y: Float, val title: String, val detail: String, val kind: String = "")
+
+private val VIEWABLE = setOf("sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "star")
 
 fun parseStars(j: JSONObject): List<SkyStar> {
     val arr = j.getJSONArray("stars")
@@ -244,7 +246,7 @@ private fun enuU(altDeg: Double) = sin(Math.toRadians(altDeg)).toFloat()
 // ---------------------------------------------------------------- the screen
 
 @Composable
-fun SkyScreen(onBack: () -> Unit) {
+fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit) {
     val ctx = LocalContext.current
     val density = LocalDensity.current.density
     BackHandler(onBack = onBack)
@@ -266,7 +268,7 @@ fun SkyScreen(onBack: () -> Unit) {
     var hud by remember { mutableStateOf("") }
     var fov by remember { mutableStateOf(65f) }
     var declDeg by remember { mutableStateOf(0.0) }
-    var selected by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var selected by remember { mutableStateOf<Triple<String, String, String>?>(null) }
     var tick by remember { mutableIntStateOf(0) }
     var hasSensor by remember { mutableStateOf(true) }
     val rot = remember { floatArrayOf(1f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 1f) }
@@ -489,9 +491,10 @@ fun SkyScreen(onBack: () -> Unit) {
                         var best = Float.MAX_VALUE
                         var title = ""
                         var detail = ""
+                        var kind = ""
                         for (m in markers) {
                             val d = hypot(m.x - pos.x, m.y - pos.y)
-                            if (d < thr && d < best) { best = d; title = m.title; detail = m.detail }
+                            if (d < thr && d < best) { best = d; title = m.title; detail = m.detail; kind = m.kind }
                         }
                         for (i in stars.indices) {
                             if (!vis[i]) continue
@@ -499,6 +502,7 @@ fun SkyScreen(onBack: () -> Unit) {
                             val d = hypot(px[i] - pos.x, py[i] - pos.y) - max(0f, 6f - s.mag) * 1.5f
                             if (d < thr * 0.6f && d < best) {
                                 best = d
+                                kind = "star:" + s.hr
                                 title = if (s.name.isNotEmpty()) s.name else "HR " + s.hr
                                 val alt = Math.toDegrees(asin(vec[3 * i + 2].toDouble())).roundToInt()
                                 var az = Math.toDegrees(atan2(vec[3 * i].toDouble(), vec[3 * i + 1].toDouble()))
@@ -507,7 +511,7 @@ fun SkyScreen(onBack: () -> Unit) {
                                     "magnitude " + s.mag + "\nalt " + alt + DEG + "   az " + az.roundToInt() + DEG
                             }
                         }
-                        selected = if (best < Float.MAX_VALUE) Pair(title, detail) else null
+                        selected = if (best < Float.MAX_VALUE) Triple(title, detail, kind) else null
                     }
                 }
                 .pointerInput(Unit) {
@@ -618,7 +622,7 @@ fun SkyScreen(onBack: () -> Unit) {
                 markers.add(
                     Marker(cam.outX, cam.outY, label,
                         (if (lname == "sun" || lname == "moon") "" else "Planet\n") +
-                            "alt " + b.alt.roundToInt() + DEG + "   az " + b.az.roundToInt() + DEG)
+                            "alt " + b.alt.roundToInt() + DEG + "   az " + b.az.roundToInt() + DEG, lname)
                 )
             }
 
@@ -628,7 +632,7 @@ fun SkyScreen(onBack: () -> Unit) {
                 drawCircle(cyan, 2.4f * density, Offset(cam.outX, cam.outY))
                 markers.add(
                     Marker(cam.outX, cam.outY, s.name,
-                        "Satellite\nalt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG)
+                        "Satellite\nalt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG, "sat")
                 )
             }
             bodies.iss?.let { s ->
@@ -642,7 +646,7 @@ fun SkyScreen(onBack: () -> Unit) {
                     )
                     markers.add(
                         Marker(cam.outX, cam.outY, "International Space Station",
-                            "alt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG)
+                            "alt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG, "iss")
                     )
                 }
             }
@@ -684,7 +688,7 @@ fun SkyScreen(onBack: () -> Unit) {
             if (status.isNotEmpty()) {
                 Text(status, color = dim, style = MaterialTheme.typography.bodyMedium)
             }
-            selected?.let { (t, d) ->
+            selected?.let { (t, d, k) ->
                 Surface(
                     color = card.copy(alpha = 0.94f),
                     shape = RoundedCornerShape(16.dp),
@@ -693,6 +697,11 @@ fun SkyScreen(onBack: () -> Unit) {
                     Column(Modifier.padding(16.dp)) {
                         Text(t, style = MaterialTheme.typography.titleLarge, color = gold)
                         Text(d, style = MaterialTheme.typography.bodyMedium, color = ink)
+                        if (k.substringBefore(":") in VIEWABLE) {
+                            TextButton(onClick = { onOpenObject(k, t, d) }) {
+                                Text("View in 3D \u203A", color = cyan)
+                            }
+                        }
                     }
                 }
             }

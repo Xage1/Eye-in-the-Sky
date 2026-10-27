@@ -74,4 +74,8 @@ object Api {
     /** Whole sky: stars (RA/Dec, only when withStars) plus moving bodies (Alt/Az). */
     suspend fun dome(lat: Double, lon: Double, withStars: Boolean, magLimit: Double = 5.5): JSONObject =
         call("GET", "/skyinfo/dome?lat=$lat&lon=$lon&mag_limit=$magLimit&stars=$withStars")
+
+    suspend fun objectInfo(kind: String): JSONObject =
+        if (kind.startsWith("star:")) call("GET", "/skyinfo/object/star/" + kind.substringAfter(":"))
+        else call("GET", "/skyinfo/object/" + kind)
 }

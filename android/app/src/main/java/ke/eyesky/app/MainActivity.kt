@@ -72,8 +72,15 @@ class MainActivity : ComponentActivity() {
 fun App(prefs: SharedPreferences, night: Boolean, onNight: (Boolean) -> Unit) {
     var loggedIn by remember { mutableStateOf(!Api.token.isNullOrBlank()) }
     var inSky by remember { mutableStateOf(false) }
+    var viewing by remember { mutableStateOf<ObjectTarget?>(null) }
     if (loggedIn && inSky) {
-        SkyScreen(onBack = { inSky = false })
+        Box(Modifier.fillMaxSize()) {
+            SkyScreen(
+                onBack = { inSky = false },
+                onOpenObject = { k, t, d -> viewing = ObjectTarget(k, t, d) }
+            )
+            viewing?.let { ObjectScreen(it, onClose = { viewing = null }) }
+        }
     } else if (loggedIn) {
         HomeScreen(night = night, onNight = onNight, onOpenSky = { inSky = true }, onLogout = {
             Api.token = null
