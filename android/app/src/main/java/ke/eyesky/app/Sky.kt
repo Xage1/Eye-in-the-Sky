@@ -104,7 +104,7 @@ class Bodies(val planets: List<SkyBody>, val sats: List<SkyBody>, val iss: SkyBo
 
 private class Marker(val x: Float, val y: Float, val title: String, val detail: String, val kind: String = "")
 
-private val VIEWABLE = setOf("sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "star")
+private val VIEWABLE = setOf("sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "star", "iss", "sat")
 
 fun parseStars(j: JSONObject): List<SkyStar> {
     val arr = j.getJSONArray("stars")
@@ -260,6 +260,10 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
 
     var lat by remember { mutableStateOf<Double?>(null) }
     var lon by remember { mutableStateOf<Double?>(null) }
+    androidx.compose.runtime.SideEffect {
+        lat?.let { Where.lat = it }
+        lon?.let { Where.lon = it }
+    }
     var altM by remember { mutableStateOf(0.0) }
     var locNote by remember { mutableStateOf("Locating...") }
     var stars by remember { mutableStateOf<List<SkyStar>>(emptyList()) }
@@ -268,6 +272,9 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
     var hud by remember { mutableStateOf("") }
     var fov by remember { mutableStateOf(65f) }
     var declDeg by remember { mutableStateOf(0.0) }
+    val alignPrefs = remember { ctx.getSharedPreferences("eyesky", Context.MODE_PRIVATE) }
+    var alignDeg by remember { mutableStateOf(alignPrefs.getFloat("align_offset", 0f).toDouble()) }
+    val pointAt = remember { DoubleArray(2) }
     var selected by remember { mutableStateOf<Triple<String, String, String>?>(null) }
     var tick by remember { mutableIntStateOf(0) }
     var hasSensor by remember { mutableStateOf(true) }
@@ -397,7 +404,7 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
             val l = object : SensorEventListener {
                 override fun onSensorChanged(e: SensorEvent) {
                     SensorManager.getRotationMatrixFromVector(rot, e.values)
-                    val d = Math.toRadians(declDeg)
+                    val d = Math.toRadians(declDeg + alignDeg)
                     val c = cos(d).toFloat()
                     val s = sin(d).toFloat()
                     val fe = -rot[2] * c - rot[5] * s
@@ -406,6 +413,8 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
                     val alt = Math.toDegrees(asin(fu.coerceIn(-1f, 1f).toDouble()))
                     var az = Math.toDegrees(atan2(fe.toDouble(), fn.toDouble()))
                     if (az < 0) az += 360.0
+                    pointAt[0] = az
+                    pointAt[1] = alt
                     val name = CARDINALS[((az + 11.25) / 22.5).toInt() % 16]
                     val text = name + " " + az.roundToInt() + DEG + "   ·   alt " + alt.roundToInt() + DEG
                     if (text != hud) hud = text
@@ -531,7 +540,7 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
             val w = size.width
             val h = size.height
             val focal = if (arActive) (h / 2f) / tan(Math.toRadians(fovLongDeg / 2.0)).toFloat() * arZoom else 0f
-            cam.set(rot, Math.toRadians(declDeg), fov, w, h, focal)
+            cam.set(rot, Math.toRadians(declDeg + alignDeg), fov, w, h, focal)
             if (arActive) drawRect(Color.Black.copy(alpha = 0.2f))
             markers.clear()
 
@@ -632,7 +641,7 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
                 drawCircle(cyan, 2.4f * density, Offset(cam.outX, cam.outY))
                 markers.add(
                     Marker(cam.outX, cam.outY, s.name,
-                        "Satellite\nalt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG, "sat")
+                        "Satellite\nalt " + s.alt.roundToInt() + DEG + "   az " + s.az.roundToInt() + DEG, "sat:" + s.name)
                 )
             }
             bodies.iss?.let { s ->
@@ -667,6 +676,46 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
                 Text(locNote, color = dim, style = MaterialTheme.typography.labelSmall)
             }
             Spacer(Modifier.weight(1f))
+            if (alignDeg != 0.0) {
+                TextButton(onClick = {
+                    alignDeg = 0.0
+                    alignPrefs.edit().putFloat("align_offset", 0f).apply()
+                    android.widget.Toast.makeText(ctx, "Alignment reset", android.widget.Toast.LENGTH_SHORT).show()
+                }) { Text("Reset", color = dim) }
+            }
+            TextButton(onClick = {
+                // Put the centre cross on the Sun, Moon or a bright planet, then tap Align.
+                val pa = pointAt[0]
+                val pl = pointAt[1]
+                var best: SkyBody? = null
+                var bestD = 1e9
+                for (b in bodies.planets) {
+                    if (b.alt < 3.0) continue
+                    val c = sin(Math.toRadians(pl)) * sin(Math.toRadians(b.alt)) +
+                        cos(Math.toRadians(pl)) * cos(Math.toRadians(b.alt)) * cos(Math.toRadians(b.az - pa))
+                    val dd = Math.toDegrees(acos(c.coerceIn(-1.0, 1.0)))
+                    if (dd < bestD) { bestD = dd; best = b }
+                }
+                val tgt = best
+                if (tgt == null || bestD > 40.0) {
+                    android.widget.Toast.makeText(
+                        ctx, "Point the centre cross at the Sun, Moon or a bright planet, then tap Align",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    var delta = tgt.az - pa
+                    while (delta > 180.0) delta -= 360.0
+                    while (delta < -180.0) delta += 360.0
+                    alignDeg += delta
+                    while (alignDeg > 180.0) alignDeg -= 360.0
+                    while (alignDeg < -180.0) alignDeg += 360.0
+                    alignPrefs.edit().putFloat("align_offset", alignDeg.toFloat()).apply()
+                    android.widget.Toast.makeText(
+                        ctx, "Aligned to " + tgt.name + " (" + (if (delta >= 0) "+" else "") + delta.roundToInt() + DEG + ")",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }) { Text("Align", color = gold) }
             TextButton(onClick = {
                 if (arOn) {
                     arOn = false

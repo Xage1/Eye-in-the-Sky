@@ -61,7 +61,9 @@ object BodyCatalog {
         "jupiter" to BodySpec("jupiter", "jupiter.jpg", 3.1f, 12f, 90f, floatArrayOf(0.8f, 0.7f, 0.55f)),
         "saturn" to BodySpec("saturn", "saturn.jpg", 26.7f, 9f, 90f, floatArrayOf(0.85f, 0.75f, 0.5f), rings = true),
         "uranus" to BodySpec("uranus", "uranus.jpg", 97.8f, 7f, 90f, floatArrayOf(0.5f, 0.85f, 0.9f)),
-        "neptune" to BodySpec("neptune", "neptune.jpg", 28.3f, 7f, 90f, floatArrayOf(0.3f, 0.45f, 1f))
+        "neptune" to BodySpec("neptune", "neptune.jpg", 28.3f, 7f, 90f, floatArrayOf(0.3f, 0.45f, 1f)),
+        "iss" to BodySpec("iss", null, 0f, 7f, 25f, null, kind = 5f),
+        "sat" to BodySpec("sat", null, 0f, 7f, 25f, null, kind = 5f)
     )
     val star = BodySpec("star", null, 0f, 3f, 0f, null, kind = 2f)
 }
@@ -145,6 +147,123 @@ private fun buildRing(segments: Int, inner: Float, outer: Float): Mesh {
     return Mesh(floatBuf(verts), shortBuf(idx), idx.size)
 }
 
+/** Unit box centred on the origin, flat-shaded faces. */
+private fun buildBox(): Mesh {
+    val faces = arrayOf(
+        floatArrayOf(1f, 0f, 0f), floatArrayOf(-1f, 0f, 0f), floatArrayOf(0f, 1f, 0f),
+        floatArrayOf(0f, -1f, 0f), floatArrayOf(0f, 0f, 1f), floatArrayOf(0f, 0f, -1f)
+    )
+    val verts = FloatArray(6 * 4 * 8)
+    val idx = ShortArray(36)
+    var o = 0
+    var k = 0
+    for ((f, n) in faces.withIndex()) {
+        val u = if (Math.abs(n[1]) > 0.5f) floatArrayOf(1f, 0f, 0f) else floatArrayOf(0f, 1f, 0f)
+        val w = floatArrayOf(n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0])
+        for (c in 0 until 4) {
+            val su = if (c == 0 || c == 3) -0.5f else 0.5f
+            val sw = if (c < 2) -0.5f else 0.5f
+            verts[o++] = n[0] * 0.5f + u[0] * su + w[0] * sw
+            verts[o++] = n[1] * 0.5f + u[1] * su + w[1] * sw
+            verts[o++] = n[2] * 0.5f + u[2] * su + w[2] * sw
+            verts[o++] = n[0]; verts[o++] = n[1]; verts[o++] = n[2]
+            verts[o++] = su + 0.5f; verts[o++] = sw + 0.5f
+        }
+        val b = f * 4
+        idx[k++] = b.toShort(); idx[k++] = (b + 1).toShort(); idx[k++] = (b + 2).toShort()
+        idx[k++] = b.toShort(); idx[k++] = (b + 2).toShort(); idx[k++] = (b + 3).toShort()
+    }
+    return Mesh(floatBuf(verts), shortBuf(idx), idx.size)
+}
+
+/** Unit cylinder (diameter 1, height 1) along Y with end caps. */
+private fun buildCylinder(seg: Int): Mesh {
+    val verts = FloatArray((seg + 1) * 2 * 8 + 2 * (seg + 2) * 8)
+    val idx = ArrayList<Short>()
+    var o = 0
+    for (j in 0..seg) {
+        val a = 2.0 * PI * j / seg
+        val c = cos(a).toFloat()
+        val s = sin(a).toFloat()
+        for (y in floatArrayOf(-0.5f, 0.5f)) {
+            verts[o++] = c * 0.5f; verts[o++] = y; verts[o++] = s * 0.5f
+            verts[o++] = c; verts[o++] = 0f; verts[o++] = s
+            verts[o++] = j.toFloat() / seg; verts[o++] = y + 0.5f
+        }
+    }
+    for (j in 0 until seg) {
+        val a = j * 2
+        idx.add(a.toShort()); idx.add((a + 1).toShort()); idx.add((a + 2).toShort())
+        idx.add((a + 2).toShort()); idx.add((a + 1).toShort()); idx.add((a + 3).toShort())
+    }
+    for ((capIdx, y) in floatArrayOf(-0.5f, 0.5f).withIndex()) {
+        val centre = o / 8
+        val ny = if (capIdx == 0) -1f else 1f
+        verts[o++] = 0f; verts[o++] = y; verts[o++] = 0f
+        verts[o++] = 0f; verts[o++] = ny; verts[o++] = 0f
+        verts[o++] = 0.5f; verts[o++] = 0.5f
+        for (j in 0..seg) {
+            val a = 2.0 * PI * j / seg
+            verts[o++] = cos(a).toFloat() * 0.5f; verts[o++] = y; verts[o++] = sin(a).toFloat() * 0.5f
+            verts[o++] = 0f; verts[o++] = ny; verts[o++] = 0f
+            verts[o++] = 0.5f; verts[o++] = 0.5f
+        }
+        for (j in 0 until seg) {
+            if (capIdx == 0) {
+                idx.add(centre.toShort()); idx.add((centre + 2 + j).toShort()); idx.add((centre + 1 + j).toShort())
+            } else {
+                idx.add(centre.toShort()); idx.add((centre + 1 + j).toShort()); idx.add((centre + 2 + j).toShort())
+            }
+        }
+    }
+    return Mesh(floatBuf(verts), shortBuf(idx.toShortArray()), idx.size)
+}
+
+/** One piece of a spacecraft model. mesh 0 = box, 1 = cylinder. */
+private class Part(
+    val mesh: Int, val tx: Float, val ty: Float, val tz: Float,
+    val ax: Float, val ay: Float, val az: Float, val ang: Float,
+    val sx: Float, val sy: Float, val sz: Float, val c: FloatArray
+)
+
+private val WHITE = floatArrayOf(0.88f, 0.88f, 0.9f)
+private val GREY = floatArrayOf(0.62f, 0.63f, 0.68f)
+private val GOLD = floatArrayOf(0.92f, 0.66f, 0.2f)
+private val BLUE = floatArrayOf(0.1f, 0.2f, 0.52f)
+
+private fun issParts(): List<Part> {
+    val p = ArrayList<Part>()
+    p.add(Part(0, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 10.4f, 0.18f, 0.18f, GREY))
+    p.add(Part(1, 0f, 0f, 0.2f, 1f, 0f, 0f, 90f, 0.62f, 4.8f, 0.62f, WHITE))
+    p.add(Part(1, 0f, 0f, -2.9f, 1f, 0f, 0f, 90f, 0.5f, 1.6f, 0.5f, WHITE))
+    p.add(Part(1, 0f, 0f, 1.7f, 0f, 0f, 1f, 90f, 0.48f, 1.8f, 0.48f, WHITE))
+    p.add(Part(1, 0f, 0f, 3.0f, 1f, 0f, 0f, 90f, 0.4f, 1.0f, 0.4f, GREY))
+    for (x in floatArrayOf(-4.7f, -3.5f, 3.5f, 4.7f)) {
+        for (y in floatArrayOf(-2.2f, 2.2f)) {
+            p.add(Part(0, x, y, 0f, 0f, 0f, 0f, 0f, 1.0f, 3.9f, 0.03f, GOLD))
+        }
+        p.add(Part(0, x, 0f, 0f, 0f, 0f, 0f, 0f, 0.05f, 8.1f, 0.05f, GREY))
+    }
+    for (x in floatArrayOf(-1.8f, 1.8f)) {
+        for (y in floatArrayOf(-1.5f, 1.5f)) {
+            p.add(Part(0, x, y, 0.25f, 0f, 0f, 0f, 0f, 0.75f, 2.2f, 0.03f, WHITE))
+        }
+    }
+    return p
+}
+
+private fun satParts(): List<Part> {
+    val p = ArrayList<Part>()
+    p.add(Part(0, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 1.0f, 1.0f, 1.4f, GOLD))
+    for (s in floatArrayOf(-1f, 1f)) {
+        p.add(Part(0, s * 2.2f, 0f, 0f, 0f, 0f, 0f, 0f, 3.2f, 1.2f, 0.03f, BLUE))
+        p.add(Part(0, s * 0.62f, 0f, 0f, 0f, 0f, 0f, 0f, 0.25f, 0.08f, 0.08f, GREY))
+    }
+    p.add(Part(1, 0f, 0f, 1.0f, 1f, 0f, 0f, 90f, 0.9f, 0.12f, 0.9f, WHITE))
+    p.add(Part(1, 0f, 0f, 0.8f, 1f, 0f, 0f, 90f, 0.06f, 0.5f, 0.06f, GREY))
+    return p
+}
+
 private const val VERT = """
 uniform mat4 uMV;
 uniform mat4 uP;
@@ -203,7 +322,14 @@ void main() {
     vec4 t = texture2D(uTex, vUV);
     vec3 col;
     float alpha = 1.0;
-    if (uKind > 3.5) {
+    if (uKind > 5.5) {
+        vec3 L = normalize(uLight);
+        float diff = max(dot(N, L), 0.0);
+        vec3 H = normalize(L + V);
+        float spec = pow(max(dot(N, H), 0.0), 40.0) * 0.6;
+        vec3 earthshine = vec3(0.10, 0.17, 0.34) * (0.5 - 0.5 * N.y + 0.25);
+        col = uStar * (0.07 + 1.0 * diff) + earthshine * uStar + vec3(spec) * step(0.001, diff);
+    } else if (uKind > 3.5) {
         col = t.rgb * uBright;
     } else if (uKind > 2.5) {
         float ndl = abs(dot(N, normalize(uLight)));
@@ -306,6 +432,10 @@ class SphereRenderer(
     private var texBody = 0
     private var texRing = 0
     private var texSky = 0
+    private var texEarth = 0
+    private var boxMesh: Mesh? = null
+    private var cylMesh: Mesh? = null
+    private val parts: List<Part> by lazy { if (spec.key == "iss") issParts() else satParts() }
     private var quad: FloatBuffer? = null
 
     private val proj = FloatArray(16)
@@ -402,6 +532,11 @@ class SphereRenderer(
         texBody = loadTexture(spec.texture)
         texSky = loadTexture("milkyway.jpg")
         if (spec.rings) texRing = loadTexture("saturn_ring.png")
+        if (spec.kind == 5f) {
+            boxMesh = buildBox()
+            cylMesh = buildCylinder(28)
+            texEarth = loadTexture("earth.jpg")
+        }
         last = System.nanoTime()
     }
 
@@ -413,7 +548,7 @@ class SphereRenderer(
         val halfV = Math.toRadians(fovV / 2.0)
         val halfH = atan(tan(halfV) * aspect)
         val half = min(halfV, halfH)
-        val extent = if (spec.rings) 2.4 else 1.15
+        val extent = if (spec.kind == 5f) (if (spec.key == "iss") 6.0 else 3.4) else if (spec.rings) 2.4 else 1.15
         baseDist = (extent / sin(half)).toFloat()
     }
 
@@ -488,6 +623,35 @@ class SphereRenderer(
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
     }
 
+    private fun drawStation(dist: Float) {
+        val extent = if (spec.key == "iss") 6.0f else 3.4f
+        val k = extent / 6f
+        // Earth limb behind the craft
+        Matrix.setIdentityM(mv, 0)
+        Matrix.translateM(mv, 0, 0f, -17.5f * k, -dist - 8f * k)
+        Matrix.rotateM(mv, 0, time * 0.8f, 0f, 1f, 0f)
+        Matrix.scaleM(mv, 0, 14f * k, 14f * k, 14f * k)
+        bind(texEarth, 0f, 0.07f, 1f, floatArrayOf(0.3f, 0.55f, 1f))
+        drawMesh(sphere)
+        // the craft
+        val base = FloatArray(16)
+        Matrix.setIdentityM(base, 0)
+        Matrix.translateM(base, 0, 0f, 0f, -dist)
+        Matrix.rotateM(base, 0, pitch, 1f, 0f, 0f)
+        Matrix.rotateM(base, 0, yaw, 0f, 1f, 0f)
+        val box = boxMesh ?: return
+        val cyl = cylMesh ?: return
+        for (p in parts) {
+            System.arraycopy(base, 0, mv, 0, 16)
+            Matrix.translateM(mv, 0, p.tx, p.ty, p.tz)
+            if (p.ang != 0f) Matrix.rotateM(mv, 0, p.ang, p.ax, p.ay, p.az)
+            Matrix.scaleM(mv, 0, p.sx, p.sy, p.sz)
+            bind(texBody, 6f, 0.1f, 1f, null)
+            GLES20.glUniform3f(uni("uStar"), p.c[0], p.c[1], p.c[2])
+            drawMesh(if (p.mesh == 0) box else cyl)
+        }
+    }
+
     override fun onDrawFrame(gl: GL10?) {
         val now = System.nanoTime()
         val dt = ((now - last) / 1.0e9f).coerceAtMost(0.1f)
@@ -519,6 +683,10 @@ class SphereRenderer(
 
         // the body
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+        if (spec.kind == 5f) {
+            drawStation(dist)
+            return
+        }
         Matrix.setIdentityM(mv, 0)
         Matrix.translateM(mv, 0, 0f, 0f, -dist)
         Matrix.rotateM(mv, 0, pitch, 1f, 0f, 0f)
