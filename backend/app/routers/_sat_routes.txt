@@ -1,0 +1,17 @@
+
+
+# ---- satellite / ISS info ----
+import asyncio as _sat_asyncio
+from fastapi import HTTPException as _SatHTTPException
+from app.services import sat_info as _sat_info
+
+
+@router.get("/satinfo")
+async def satinfo(name: str = "ISS", lat: float = -1.2921, lon: float = 36.8219):
+    try:
+        info = await _sat_asyncio.to_thread(_sat_info.satellite_info, name, lat, lon)
+    except Exception as exc:
+        raise _SatHTTPException(status_code=503, detail="Satellite data unavailable: " + str(exc)[:120])
+    if info is None:
+        raise _SatHTTPException(status_code=404, detail="Satellite not found in the TLE catalogue")
+    return info

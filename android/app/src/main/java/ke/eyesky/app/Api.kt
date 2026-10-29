@@ -16,7 +16,8 @@ class ApiException(val code: Int, message: String) : Exception(message)
  * so localhost on the phone is the backend. For production this becomes the HTTPS domain.
  */
 object Api {
-    const val BASE_URL = "http://localhost:8000"
+    /** Dev default is the PC over "adb reverse". The Server button in the app can point this at a tunnel or a real host. */
+    @Volatile var baseUrl: String = "http://localhost:8000"
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
@@ -28,7 +29,7 @@ object Api {
 
     private suspend fun call(method: String, path: String, body: JSONObject? = null): JSONObject =
         withContext(Dispatchers.IO) {
-            val b = Request.Builder().url(BASE_URL + path)
+            val b = Request.Builder().url(baseUrl + path).header("ngrok-skip-browser-warning", "1")
             token?.let { b.header("Authorization", "Bearer $it") }
             if (method == "POST") {
                 b.post((body?.toString() ?: "{}").toRequestBody(JSON))
@@ -75,7 +76,17 @@ object Api {
     suspend fun dome(lat: Double, lon: Double, withStars: Boolean, magLimit: Double = 5.5): JSONObject =
         call("GET", "/skyinfo/dome?lat=$lat&lon=$lon&mag_limit=$magLimit&stars=$withStars")
 
-    suspend fun objectInfo(kind: String): JSONObject =
-        if (kind.startsWith("star:")) call("GET", "/skyinfo/object/star/" + kind.substringAfter(":"))
-        else call("GET", "/skyinfo/object/" + kind)
+    suspend fun objectInfo(kind: String): JSONObject {
+        val la = Where.lat
+        val lo = Where.lon
+        return when {
+            kind.startsWith("star:") -> call("GET", "/skyinfo/object/star/" + kind.substringAfter(":"))
+            kind == "iss" -> call("GET", "/skyinfo/satinfo?name=ISS&lat=$la&lon=$lo")
+            kind.startsWith("sat:") -> call(
+                "GET",
+                "/skyinfo/satinfo?name=" + java.net.URLEncoder.encode(kind.substringAfter(":"), "UTF-8") + "&lat=$la&lon=$lo"
+            )
+            else -> call("GET", "/skyinfo/object/$kind")
+        }
+    }
 }

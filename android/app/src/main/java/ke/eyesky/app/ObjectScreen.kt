@@ -33,6 +33,12 @@ import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
+/** Last known observer position, shared with the info screens. */
+object Where {
+    @Volatile var lat: Double = -1.2921
+    @Volatile var lon: Double = 36.8219
+}
+
 /** What the user tapped. kind is a body name ("jupiter") or "star:<HR number>". */
 class ObjectTarget(val kind: String, val title: String, val detail: String)
 
@@ -234,7 +240,7 @@ fun ObjectScreen(target: ObjectTarget, onClose: () -> Unit) {
     var info by remember(target.kind) { mutableStateOf<JSONObject?>(null) }
     var failed by remember(target.kind) { mutableStateOf(false) }
     LaunchedEffect(target.kind) {
-        try { info = Api.objectInfo(key.let { if (isStar) target.kind else it }) } catch (e: Exception) { failed = true }
+        try { info = Api.objectInfo(target.kind) } catch (e: Exception) { failed = true }
     }
     val bv = if (info != null && info!!.has("ci") && !info!!.isNull("ci")) info!!.optDouble("ci").toFloat() else (STAR_BV[hr] ?: 0.65f)
     val color = starRgb(bv)
@@ -274,6 +280,32 @@ fun ObjectScreen(target: ObjectTarget, onClose: () -> Unit) {
                         for (j in 0 until rs.length()) {
                             HorizontalDivider(color = line.copy(alpha = 0.4f))
                             Row2(rs.getJSONArray(j).getString(0), rs.getJSONArray(j).getString(1), dim, ink)
+                        }
+                    }
+                    val about = info?.optString("about").orEmpty()
+                    if (about.isNotEmpty()) {
+                        Spacer(Modifier.height(12.dp))
+                        Text(about, style = MaterialTheme.typography.bodyMedium, color = ink)
+                    }
+                    val ps = info?.optJSONArray("passes")
+                    if (ps != null) {
+                        Spacer(Modifier.height(16.dp))
+                        Section("Next passes over you", cyan)
+                        if (ps.length() == 0) {
+                            Text("No passes above your horizon in the next 36 hours.", color = dim, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        val fmt = java.text.SimpleDateFormat("EEE d MMM  HH:mm", java.util.Locale.getDefault())
+                        val hm = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+                        for (i in 0 until ps.length()) {
+                            val p = ps.getJSONObject(i)
+                            HorizontalDivider(color = line.copy(alpha = 0.4f))
+                            val label = if (p.optBoolean("in_progress")) "Now" else fmt.format(java.util.Date(p.getLong("rise_epoch") * 1000))
+                            val mins = (p.getInt("duration_s") + 30) / 60
+                            val txt = "rises " + p.getString("rise_dir") + ", peaks " + p.getInt("max_alt") + "\u00B0 in " +
+                                p.getString("max_dir") + " at " + hm.format(java.util.Date(p.getLong("max_epoch") * 1000)) +
+                                ", sets " + p.getString("set_dir") + "  \u00B7  " + mins + " min" +
+                                (if (p.optBoolean("visible")) "  \u00B7  visible to the naked eye" else "")
+                            Row2(label, txt, if (p.optBoolean("visible")) gold else dim, ink)
                         }
                     }
                 } else if (failed) {
