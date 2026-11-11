@@ -1,11 +1,11 @@
-import json
-from pathlib import Path
-
-p = Path("app/data/stars_catalogue.json")
-d = json.loads(p.read_text(encoding="utf-8"))
-wanted = {2491: "Sirius", 1713: "Rigel", 2061: "Betelgeuse", 1457: "Aldebaran", 7001: "Vega"}
-stars = {s["id"]: s for s in d["stars"]}
-
-for i in wanted:
-    s = stars[i]
-    print(f"HR {i}: {s['identifiers']['common_name']} | {s['coordinates']['ra']} | {s['coordinates']['dec']} | Mag {s['photometry']['visual_magnitude']} | {s['constellation']['name']} ({s['constellation']['iau_abbreviation']})")
+import os
+from sqlalchemy import create_engine, text
+url = (os.getenv("DATABASE_URL_SYNC") or os.getenv("DATABASE_URL", "")).replace("+asyncpg", "")
+eng = create_engine(url)
+with eng.connect() as c:
+    q = text("SELECT catalog_id, proper_name, bayer_designation, constellation, magnitude FROM stars "
+             "WHERE catalog_id IN (8161, 8162) OR proper_name = 'Alderamin' ORDER BY catalog_id")
+    for r in c.execute(q):
+        print(tuple(r))
+    n = c.execute(text("SELECT count(*) FROM stars WHERE proper_name NOT LIKE 'HR %'")).scalar()
+    print("stars with real names:", n)
