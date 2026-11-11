@@ -46,3 +46,11 @@ backend/jwst_data/
 /jwst_premium_preview.png
 /backend/jwst_preview.png
 backend/app/data/hyg/
+
+smoke_*.json
+location_payload.json
+.env
+*.env
+**/build/
+.gradle/
+local.properties
