@@ -17,7 +17,7 @@ class ApiException(val code: Int, message: String) : Exception(message)
  */
 object Api {
     /** Dev default is the PC over "adb reverse". The Server button in the app can point this at a tunnel or a real host. */
-    @Volatile var baseUrl: String = "http://localhost:8000"
+    @Volatile var baseUrl: String = BuildConfig.DEFAULT_SERVER
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)

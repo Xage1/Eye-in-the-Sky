@@ -1,0 +1,98 @@
+[
+ {
+  "title": "Reading the sky view",
+  "category": "Getting Started",
+  "difficulty": "Easy",
+  "content": "Hold your phone up and the sky view shows what is in that direction. Move it and the view follows, using your phone's compass and motion sensors.\n\nThe centre cross is where you are pointing. Tap a star, planet, the Moon or a satellite to see details about it.\n\nCompass off? Wave the phone in a slow figure of eight to calibrate it. Keep it away from magnets and metal cases. If the sky looks rotated, point at the Sun, Moon or a bright planet and use Align."
+ },
+ {
+  "title": "Altitude and azimuth",
+  "category": "Getting Started",
+  "difficulty": "Easy",
+  "content": "Astronomers describe where something is with two angles. Azimuth is the compass direction along the horizon: 0 degrees is north, 90 east, 180 south, 270 west.\n\nAltitude is how high it is above the horizon: 0 degrees on the horizon, 90 degrees straight overhead. Your closed fist held at arm's length is about 10 degrees wide, which is a handy ruler.\n\nAn object with a negative altitude is below the horizon and cannot be seen at that moment."
+ },
+ {
+  "title": "Seeing in the dark",
+  "category": "Getting Started",
+  "difficulty": "Easy",
+  "content": "Your eyes need about 20 to 30 minutes to fully adapt to darkness. A single look at a bright phone screen undoes much of that.\n\nUse Night vision (red) mode in EyeSky. Red light affects your dark adaptation far less than white or blue light. Turn the screen brightness down too.\n\nLook slightly to the side of a faint object rather than straight at it. This is called averted vision and uses the more sensitive edge of your retina."
+ },
+ {
+  "title": "Why stars rise and set",
+  "category": "The Sky",
+  "difficulty": "Easy",
+  "content": "The Earth spins once a day, so the whole sky appears to turn around us. Stars rise in the east and set in the west, just like the Sun.\n\nKenya sits on the equator, so you can see almost the whole sky over the course of a year: the northern star groups and the southern ones, including the Southern Cross. Stars rise and set nearly straight up and down here.\n\nBecause the Earth also orbits the Sun, each star rises about four minutes earlier every night. That is why the constellations change with the seasons."
+ },
+ {
+  "title": "Star brightness and magnitude",
+  "category": "The Sky",
+  "difficulty": "Easy",
+  "content": "Brightness is measured in magnitudes, and a smaller number means brighter. Sirius, the brightest star at night, is about -1.5. The faintest stars seen under a dark sky are about 6.\n\nEach step of one magnitude is about 2.5 times in brightness. A magnitude 1 star is 100 times brighter than a magnitude 6 star.\n\nThe magnitude limit in EyeSky decides how many faint stars are drawn. City lights hide the faint ones, so a dark spot shows far more than a bright town."
+ },
+ {
+  "title": "Constellations and asterisms",
+  "category": "The Sky",
+  "difficulty": "Medium",
+  "content": "Constellations are 88 official regions of the sky. Within them, people have long traced patterns of bright stars. The Southern Cross and Orion's Belt are two famous ones.\n\nThe stars in a pattern are usually at very different distances from us. They only look close together from our point of view.\n\nOrion is easy to find from Kenya: look for three bright stars in a short straight line. Orion is visible in the evening sky during the northern winter months."
+ },
+ {
+  "title": "Phases of the Moon",
+  "category": "Moon and Sun",
+  "difficulty": "Easy",
+  "content": "The Moon makes no light of its own. We see the part of it lit by the Sun. As it orbits the Earth in about 29.5 days, we see different amounts of the lit side.\n\nNew Moon is when it sits near the Sun and we see almost nothing. A crescent grows into first quarter, then gibbous, then full Moon. After that it shrinks again.\n\nThe best time to look at the Moon through binoculars is around the quarter phases. Shadows along the edge of the lit part show craters and mountains in sharp detail. A full Moon looks flat and is very bright."
+ },
+ {
+  "title": "Eclipses",
+  "category": "Moon and Sun",
+  "difficulty": "Medium",
+  "content": "A solar eclipse happens when the Moon passes between the Earth and the Sun. A lunar eclipse happens when the Earth's shadow falls on the Moon.\n\nEclipses do not happen every month because the Moon's orbit is tilted about 5 degrees compared with the Earth's path around the Sun. They happen only when the alignment is close to exact.\n\nNever look directly at the Sun, even during a partial eclipse. Use certified eclipse glasses. A lunar eclipse is safe to watch with the naked eye."
+ },
+ {
+  "title": "Finding planets",
+  "category": "Planets",
+  "difficulty": "Easy",
+  "content": "Planets look like bright stars that do not twinkle much. Over days and weeks they move against the background stars, which is how they got the name 'wanderers'.\n\nVenus is the brightest and stays close to the Sun, so it appears only in the evening after sunset or the morning before sunrise. Jupiter is bright and steady. Mars has a reddish colour. Saturn is yellowish and slower.\n\nPlanets follow the same path across the sky as the Sun and Moon, called the ecliptic. If something very bright sits along that line, it is probably a planet. Use EyeSky's sky view to confirm."
+ },
+ {
+  "title": "What you can see with binoculars",
+  "category": "Planets",
+  "difficulty": "Medium",
+  "content": "Even small binoculars reveal a lot. You can see the four bright moons of Jupiter as tiny dots in a line, craters on the Moon, and many star clusters that look like faint smudges to the naked eye.\n\nSteady the binoculars against a wall, a car roof or a tripod. Handshake is the biggest limit. Ordinary 7x50 or 10x50 binoculars are ideal.\n\nWith a small telescope, Saturn's rings and the phases of Venus become visible."
+ },
+ {
+  "title": "Watching satellites",
+  "category": "Satellites",
+  "difficulty": "Easy",
+  "content": "Satellites shine only by reflecting sunlight. You can see them just after sunset or before sunrise, when the sky is dark where you are but the satellite is still lit by the Sun high above.\n\nA satellite looks like a steady, quickly moving star. It crosses the sky in a few minutes and then fades as it enters the Earth's shadow.\n\nThe International Space Station is the brightest and easiest. Use the satellite pages in EyeSky to find when it passes over you. Blinking lights belong to aircraft, not satellites."
+ },
+ {
+  "title": "How orbits work",
+  "category": "Satellites",
+  "difficulty": "Medium",
+  "content": "A satellite stays up because it moves sideways very fast, so it keeps falling around the Earth instead of into it. Low orbit objects like the ISS circle the Earth in about 90 minutes.\n\nHigher orbits are slower. GPS satellites orbit at about 20,000 km and take 12 hours. Weather and TV satellites sit at 36,000 km where one orbit takes exactly one day, so they appear fixed in the sky.\n\nEyeSky predicts where a satellite is using orbital elements (TLEs) that are updated often, since satellites slowly drift and their positions need regular refreshing."
+ },
+ {
+  "title": "Meteor showers",
+  "category": "Events",
+  "difficulty": "Easy",
+  "content": "Meteors, also called shooting stars, are tiny bits of dust and rock burning up in our atmosphere. A meteor shower happens when the Earth passes through the trail left by a comet.\n\nShowers are named after the constellation they appear to come from. Famous ones include the Perseids in August, the Geminids in December and the Quadrantids in January.\n\nYou need no equipment. Find a dark spot, lie back, let your eyes adapt for 20 minutes, and look at a wide area of sky. The best time is usually after midnight and before dawn."
+ },
+ {
+  "title": "Conjunctions and occultations",
+  "category": "Events",
+  "difficulty": "Medium",
+  "content": "A conjunction is when two objects look close together in the sky, such as the Moon beside a bright planet, or two planets near each other. They are only lined up from our point of view; they are far apart in space.\n\nAn occultation happens when one object passes in front of another, such as the Moon covering a star or planet.\n\nConjunctions are easy and beautiful targets for photos, because you can fit both objects and a landscape in one frame."
+ },
+ {
+  "title": "Planning a good night",
+  "category": "Observing Tips",
+  "difficulty": "Easy",
+  "content": "Check the Moon phase first. A bright Moon washes out faint objects, so plan deep sky viewing around the new Moon and watch the Moon itself at other times.\n\nPick a spot away from street lights, with a clear view of the horizon. Check the cloud forecast. Dress warmly, since nights at altitude in Kenya can get cold.\n\nBring a red torch, water and something to sit on. Tell someone where you are going when you observe in remote areas."
+ },
+ {
+  "title": "Astrophotography with a phone",
+  "category": "Observing Tips",
+  "difficulty": "Medium",
+  "content": "Modern phones can take impressive night shots. Use a tripod or lean the phone against something solid, and turn on night mode or set a long exposure of a few seconds.\n\nUse a timer or voice command to avoid shaking the phone when you tap the shutter. Keep exposures short to avoid star trails. Around 10 to 20 seconds is plenty.\n\nThe Moon is too bright for night mode. Lower the exposure by tapping on the Moon and dragging the brightness down."
+ }
+]

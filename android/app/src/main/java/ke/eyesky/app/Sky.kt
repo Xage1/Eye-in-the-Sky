@@ -319,26 +319,84 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
     // ---- location
     val listenerRef = remember { arrayOfNulls<LocationListener>(1) }
 
+    val locPrefs = remember { ctx.getSharedPreferences("eyesky", Context.MODE_PRIVATE) }
+    var accM by remember { mutableStateOf(Float.MAX_VALUE) }
+    var manual by remember { mutableStateOf(locPrefs.getBoolean("loc_manual", false)) }
+    var showManual by remember { mutableStateOf(false) }
+    var showWeather by remember { mutableStateOf(false) }
+    var manLat by remember { mutableStateOf("") }
+    var manLon by remember { mutableStateOf("") }
+    var manErr by remember { mutableStateOf("") }
+
+    fun saveLoc(la: Double, lo: Double, al: Double, isManual: Boolean) {
+        locPrefs.edit()
+            .putString("loc_lat", la.toString())
+            .putString("loc_lon", lo.toString())
+            .putString("loc_alt", al.toString())
+            .putBoolean("loc_manual", isManual)
+            .apply()
+    }
+
     fun applyLocation(l: Location) {
+        if (manual) return
+        val acc = if (l.hasAccuracy()) l.accuracy else 5000f
+        val cl = lat
+        val co = lon
+        if (cl != null && co != null) {
+            val res = FloatArray(1)
+            Location.distanceBetween(cl, co, l.latitude, l.longitude, res)
+            val moved = res[0]
+            // keep a better fix unless we have really moved
+            if (accM != Float.MAX_VALUE && acc > accM && moved < maxOf(accM, 100f)) return
+            // small moves: do NOT touch lat/lon (changing them reloads the whole sky)
+            if (moved < 50f) {
+                if (acc < accM * 0.7f) {
+                    accM = acc
+                    locNote = if (acc <= 100f) "GPS \u00b1" + acc.roundToInt() + " m"
+                    else "Approx \u00b1" + acc.roundToInt() + " m - tap to set exactly"
+                }
+                return
+            }
+        }
         lat = l.latitude
         lon = l.longitude
-        altM = if (l.hasAltitude()) l.altitude else 0.0
-        locNote = "GPS"
+        val alt = if (l.hasAltitude()) l.altitude else 0.0
+        altM = alt
+        accM = acc
+        saveLoc(l.latitude, l.longitude, alt, false)
+        locNote = if (acc <= 100f) "GPS \u00b1" + acc.roundToInt() + " m"
+        else "Approx \u00b1" + acc.roundToInt() + " m - tap to set exactly"
+        if (acc <= 25f) {
+            // precise enough: stop listening so the app stops redrawing and saves battery
+            listenerRef[0]?.let {
+                try { (ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager).removeUpdates(it) } catch (e: Exception) { }
+            }
+        }
+    }
+
+    fun loadSaved() {
+        val sl = locPrefs.getString("loc_lat", null)?.toDoubleOrNull()
+        val so = locPrefs.getString("loc_lon", null)?.toDoubleOrNull()
+        if (sl != null && so != null && lat == null) {
+            lat = sl
+            lon = so
+            altM = locPrefs.getString("loc_alt", null)?.toDoubleOrNull() ?: 0.0
+            locNote = if (manual) "Manual location" else "Last known - updating"
+        }
     }
 
     @SuppressLint("MissingPermission")
     fun startLocation() {
+        if (manual) return
         val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val last = listOf(
             LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER
         ).mapNotNull { p -> try { lm.getLastKnownLocation(p) } catch (e: Exception) { null } }
             .maxByOrNull { it.time }
-        if (last != null) applyLocation(last)
+        if (last != null && System.currentTimeMillis() - last.time < 10 * 60 * 1000L) applyLocation(last)
+        listenerRef[0]?.let { try { lm.removeUpdates(it) } catch (e: Exception) { } }
         val l = object : LocationListener {
-            override fun onLocationChanged(loc: Location) {
-                applyLocation(loc)
-                try { lm.removeUpdates(this) } catch (e: Exception) { }
-            }
+            override fun onLocationChanged(loc: Location) { applyLocation(loc) }
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
@@ -346,31 +404,103 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
         listenerRef[0] = l
         for (p in listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)) {
             try {
-                if (lm.isProviderEnabled(p)) lm.requestLocationUpdates(p, 0L, 0f, l, Looper.getMainLooper())
+                if (lm.isProviderEnabled(p)) lm.requestLocationUpdates(p, 5000L, 10f, l, Looper.getMainLooper())
             } catch (e: Exception) { }
         }
     }
 
-    val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) {
+    fun hasLocPerm(): Boolean =
+        ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+    val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (hasLocPerm()) {
             startLocation()
-        } else {
-            lat = NAIROBI_LAT
-            lon = NAIROBI_LON
-            locNote = "Location off: using Nairobi"
+        } else if (lat == null) {
+            locNote = "Location off - tap to set"
+            showManual = true
         }
     }
 
     LaunchedEffect(Unit) {
-        val ok = ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED
-        if (ok) startLocation() else permLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        delay(8000)
-        if (lat == null) {
-            lat = NAIROBI_LAT
-            lon = NAIROBI_LON
-            locNote = "No GPS fix: using Nairobi"
+        loadSaved()
+        if (!manual) {
+            if (hasLocPerm()) startLocation()
+            // ask for PRECISE even if approximate was already granted
+            if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+            }
+            delay(15000)
+            if (lat == null) {
+                locNote = "No GPS fix - tap to set"
+                showManual = true
+            }
         }
+    }
+
+    if (showManual) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showManual = false },
+            title = { Text("Set your location") },
+            text = {
+                Column {
+                    Text("Enter your exact coordinates (decimal degrees, e.g. -1.2921 and 36.8219). South and West are negative.")
+                    androidx.compose.material3.OutlinedTextField(
+                        value = manLat, onValueChange = { manLat = it; manErr = "" },
+                        label = { Text("Latitude") }, singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal)
+                    )
+                    androidx.compose.material3.OutlinedTextField(
+                        value = manLon, onValueChange = { manLon = it; manErr = "" },
+                        label = { Text("Longitude") }, singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal)
+                    )
+                    if (manErr.isNotEmpty()) Text(manErr, color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = {
+                        manual = false
+                        saveLoc(lat ?: 0.0, lon ?: 0.0, altM, false)
+                        locPrefs.edit().remove("loc_lat").remove("loc_lon").putBoolean("loc_manual", false).apply()
+                        accM = Float.MAX_VALUE
+                        locNote = "Locating..."
+                        showManual = false
+                        if (hasLocPerm()) startLocation()
+                        else permLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                    }) { Text("Use GPS") }
+                    TextButton(onClick = {
+                        try {
+                            ctx.startActivity(android.content.Intent(
+                                android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                android.net.Uri.parse("package:" + ctx.packageName)))
+                        } catch (e: Exception) { }
+                    }) { Text("Open app settings (allow precise)") }
+                    TextButton(onClick = {
+                        manual = true
+                        lat = NAIROBI_LAT; lon = NAIROBI_LON; altM = 1795.0; accM = 0f
+                        saveLoc(NAIROBI_LAT, NAIROBI_LON, 1795.0, true)
+                        locNote = "Manual: Nairobi"
+                        showManual = false
+                    }) { Text("Use Nairobi") }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val la = manLat.trim().replace(',', '.').toDoubleOrNull()
+                    val lo = manLon.trim().replace(',', '.').toDoubleOrNull()
+                    if (la == null || lo == null || la < -90.0 || la > 90.0 || lo < -180.0 || lo > 180.0) {
+                        manErr = "Enter valid numbers (lat -90..90, lon -180..180)"
+                    } else {
+                        manual = true
+                        lat = la; lon = lo; accM = 0f
+                        saveLoc(la, lo, altM, true)
+                        locNote = "Manual location"
+                        showManual = false
+                    }
+                }) { Text("Save") }
+            },
+            dismissButton = { TextButton(onClick = { showManual = false }) { Text("Cancel") } }
+        )
     }
 
     DisposableEffect(Unit) {
@@ -665,23 +795,16 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
         }
 
         // top bar
-        Row(
-            Modifier.fillMaxWidth().systemBarsPadding().padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = onBack) { Text("‹ Back", color = ink) }
-            Spacer(Modifier.weight(1f))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(hud, color = ink, style = MaterialTheme.typography.titleMedium)
-                Text(locNote, color = dim, style = MaterialTheme.typography.labelSmall)
-            }
+        Column(Modifier.fillMaxWidth().systemBarsPadding().padding(horizontal = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = onBack) { Text("‹ Back", color = ink, maxLines = 1, softWrap = false) }
             Spacer(Modifier.weight(1f))
             if (alignDeg != 0.0) {
                 TextButton(onClick = {
                     alignDeg = 0.0
                     alignPrefs.edit().putFloat("align_offset", 0f).apply()
                     android.widget.Toast.makeText(ctx, "Alignment reset", android.widget.Toast.LENGTH_SHORT).show()
-                }) { Text("Reset", color = dim) }
+                }) { Text("Reset", color = dim, maxLines = 1, softWrap = false) }
             }
             TextButton(onClick = {
                 // Put the centre cross on the Sun, Moon or a bright planet, then tap Align.
@@ -715,7 +838,7 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
                         android.widget.Toast.LENGTH_SHORT
                     ).show()
                 }
-            }) { Text("Align", color = gold) }
+            }) { Text("Align", color = gold, maxLines = 1, softWrap = false) }
             TextButton(onClick = {
                 if (arOn) {
                     arOn = false
@@ -724,8 +847,16 @@ fun SkyScreen(onBack: () -> Unit, onOpenObject: (String, String, String) -> Unit
                 } else {
                     camPermLauncher.launch(Manifest.permission.CAMERA)
                 }
-            }) { Text(if (arOn) "Map" else "Camera", color = cyan) }
+            }) { Text(if (arOn) "Map" else "Camera", color = cyan, maxLines = 1, softWrap = false) }
+            TextButton(onClick = { showWeather = true }) { Text("Weather", color = ink, maxLines = 1, softWrap = false) }
         }
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(hud, color = ink, style = MaterialTheme.typography.titleMedium)
+            Text(locNote, color = dim, style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.clickable { manLat = lat?.toString() ?: ""; manLon = lon?.toString() ?: ""; showManual = true })
+        }
+        }
+        if (showWeather) WeatherDialog(lat, lon) { showWeather = false }
 
         // messages and the tap card
         Column(

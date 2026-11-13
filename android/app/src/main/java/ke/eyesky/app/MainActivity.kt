@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
                             night = it
                             prefs.edit().putBoolean("night", it).apply()
                         }
+                        SplashOverlay()
                     }
                 }
             }
@@ -75,8 +76,13 @@ class MainActivity : ComponentActivity() {
 fun App(prefs: SharedPreferences, night: Boolean, onNight: (Boolean) -> Unit) {
     var loggedIn by remember { mutableStateOf(!Api.token.isNullOrBlank()) }
     var inSky by remember { mutableStateOf(false) }
+    var page by remember { mutableStateOf("") }
     var viewing by remember { mutableStateOf<ObjectTarget?>(null) }
-    if (loggedIn && inSky) {
+    if (loggedIn && page == "lessons") {
+        LessonsScreen(onBack = { page = "" })
+    } else if (loggedIn && page == "about") {
+        AboutScreen(onBack = { page = "" })
+    } else if (loggedIn && inSky) {
         Box(Modifier.fillMaxSize()) {
             SkyScreen(
                 onBack = { inSky = false },
@@ -85,7 +91,8 @@ fun App(prefs: SharedPreferences, night: Boolean, onNight: (Boolean) -> Unit) {
             viewing?.let { ObjectScreen(it, onClose = { viewing = null }) }
         }
     } else if (loggedIn) {
-        HomeScreen(night = night, onNight = onNight, onOpenSky = { inSky = true }, onLogout = {
+        HomeScreen(night = night, onNight = onNight, onOpenSky = { inSky = true },
+            onLessons = { page = "lessons" }, onAbout = { page = "about" }, onLogout = {
             Api.token = null
             prefs.edit().remove("token").apply()
             loggedIn = false
@@ -206,7 +213,8 @@ fun AuthScreen(onDone: () -> Unit) {
 }
 
 @Composable
-fun HomeScreen(night: Boolean, onNight: (Boolean) -> Unit, onOpenSky: () -> Unit, onLogout: () -> Unit) {
+fun HomeScreen(night: Boolean, onNight: (Boolean) -> Unit, onOpenSky: () -> Unit,
+               onLessons: () -> Unit, onAbout: () -> Unit, onLogout: () -> Unit) {
     var info by remember { mutableStateOf("Loading...") }
 
     LaunchedEffect(Unit) {
@@ -242,6 +250,10 @@ fun HomeScreen(night: Boolean, onNight: (Boolean) -> Unit, onOpenSky: () -> Unit
         }
         Spacer(Modifier.height(20.dp))
         Button(onClick = onOpenSky, modifier = Modifier.fillMaxWidth()) { Text("Open sky view") }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = onLessons, modifier = Modifier.fillMaxWidth()) { Text("Lessons") }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = onAbout, modifier = Modifier.fillMaxWidth()) { Text("About & credits") }
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = onLogout) { Text("Sign out") }
         ServerButton()
@@ -286,7 +298,7 @@ fun ServerButton() {
             },
             dismissButton = {
                 TextButton(onClick = {
-                    Api.baseUrl = "http://localhost:8000"
+                    Api.baseUrl = BuildConfig.DEFAULT_SERVER
                     prefs.edit().remove("server").apply()
                     open = false
                 }) { Text("Reset") }

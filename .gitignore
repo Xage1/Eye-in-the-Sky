@@ -54,3 +54,7 @@ location_payload.json
 **/build/
 .gradle/
 local.properties
+android/keystore.properties
+keystore.properties
+*.jks
+*.keystore
